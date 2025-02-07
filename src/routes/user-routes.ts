@@ -1,0 +1,39 @@
+import { Router } from "express";
+import asyncHandler from "../middlewares/asyncWrapper";
+import UserController from "../controllers/user-controller";
+import { validateSchemas } from "../middlewares/validateRequests";
+import { setPassword, setPinCode, userCreate } from "../schemas/user-schemas";
+import { detailsSchema, listSchema } from "../schemas/shared-schemas";
+import { verifyToken } from "../middlewares/token";
+
+
+class UserRoutes {
+    public router = Router();
+    private controller = new UserController()
+
+    constructor() {
+        this.initializeUserRoutes();
+    }
+
+    private initializeUserRoutes() {
+        this.router.post('/create', 
+            validateSchemas(userCreate),
+            verifyToken,
+            asyncHandler(this.controller.handleCreateNewUserReq)
+        )
+
+        this.router.get('/list', 
+            validateSchemas(listSchema, 'query'),
+            verifyToken,
+            asyncHandler(this.controller.handleGetListOfUsersReq)
+        )
+
+        this.router.get('/details', 
+            validateSchemas(detailsSchema, 'query'),
+            verifyToken,
+            asyncHandler(this.controller.handleGetUserDetailsReq)
+        )
+    }
+}
+
+export default UserRoutes;
