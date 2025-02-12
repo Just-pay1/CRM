@@ -2,13 +2,11 @@ import { Request } from "express";
 import { User } from "../models/user-model";
 import { WebError } from "../utilities/web-errors";
 import jwt, { verify, verify as verifyToken } from "jsonwebtoken";
-import * as dotenv from "dotenv";
 import { v4 as uuidV4 } from 'uuid';
 import { createHash, verifyHash } from "../utilities/hash-password";
 import { generateToken } from "../middlewares/token";
+import { JWT_SECRET_KEY } from "../config";
 
-
-dotenv.config();
 
 class AuthService {
 
@@ -84,7 +82,7 @@ class AuthService {
         let tokenID: string
 
         try {
-            const verificationResponse = verifyToken(resetToken, process.env.JWT_SECRET_KEY!) as any;
+            const verificationResponse = verifyToken(resetToken, JWT_SECRET_KEY!) as any;
             tokenID = verificationResponse.tokenID;
         } catch (e) {
             console.log(e);
