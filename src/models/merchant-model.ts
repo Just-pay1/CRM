@@ -1,9 +1,9 @@
 import { DataTypes, Model } from "sequelize";
 import { mysql } from "../db/config";
 
-export class CustomerProfile extends Model { }
+export class Merchant extends Model { }
 
-CustomerProfile.init(
+Merchant.init(
     {
         id: {
             type: DataTypes.UUID,
@@ -71,7 +71,7 @@ CustomerProfile.init(
             allowNull: false,
         },
         account_number: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
             allowNull: false,
         },
         iban: {
@@ -121,7 +121,7 @@ CustomerProfile.init(
     },
     {
         sequelize: mysql,
-        tableName: 'customerProfiles',
+        tableName: 'merchants',
         timestamps: true
     }
 )

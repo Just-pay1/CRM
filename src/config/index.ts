@@ -19,5 +19,4 @@ export const DB_HOST = process.env.DB_HOST;
 export const EMAIL = decrypt(process.env.EMAIL!);
 export const EMAIL_PASS = decrypt(process.env.EMAIL_PASS!);
 
-console.log(EMAIL, EMAIL_PASS);
-
+// console.log(EMAIL, EMAIL_PASS);
