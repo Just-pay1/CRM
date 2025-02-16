@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-export const CustomerProfileSchemas = {
+export const merchantSchemas = {
 
     create_new: Joi.object().keys({
         legal_name: Joi.string().required(),
@@ -29,5 +29,14 @@ export const CustomerProfileSchemas = {
         
         commission_setup:  Joi.string().valid('Fixed', 'Percentage').required(),
         commission_amount: Joi.number().min(0).max(100).required(),
-    })
+    }),
+
+    list: Joi.object().keys({
+        page: Joi.string().pattern(/^(?:0|[1-9][0-9]*|-1)$/).required(),
+        limit: Joi.string().pattern(/^\d+$/).optional(),
+    }),
+
+    details: Joi.object().keys({
+        id: Joi.string().required()
+    }),
 }

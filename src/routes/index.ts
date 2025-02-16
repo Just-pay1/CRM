@@ -1,14 +1,14 @@
 import { Router } from "express";
 import UserRoutes from "./user-routes";
 import AuthRoutes from "./auth-routes";
-import { CustomerProfileRoutes } from "./customer-profile-routes";
+import { MerchantRoutes } from "./merchant-routes";
 
 
 class MainRoute {
     public router = Router();
     private user = new UserRoutes();
     private auth = new AuthRoutes();
-    private customerProfile = new CustomerProfileRoutes();
+    private merchant = new MerchantRoutes();
 
 
     constructor() {
@@ -18,7 +18,7 @@ class MainRoute {
     private initializeAppRoutes() {
         this.router.use("/user", this.user.router);
         this.router.use("/auth", this.auth.router);
-        this.router.use("/customer-profile", this.customerProfile.router)
+        this.router.use("/merchant", this.merchant.router)
     }
 
 }
