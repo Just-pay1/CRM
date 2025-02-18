@@ -8,10 +8,20 @@ services:
     ports:
       - "5000:5000"
     environment:
+    # APP CONFIG
+      - PORT=5000
+
+    # DB VARIABLES 
       - DB_HOST=db
-      - DB_USER=root
-      - DB_PASSWORD=root_password
-      - DB_NAME=my_database
+      - DB_USERNAME=crm_user
+      - DB_PASSWORD=pass1234
+      - DB_NAME=CRM
+      - WT_SECRET_KEY =2e83d351b5e1c4539f8013df176efe8f8abbea1c149cc6c341073d7f557e4c20
+
+    # MAIL CONFIG
+      - EMAIL =U2FsdGVkX1/pIMfAmggurSCx9FQxgWzvUKuNFRY3n59sF0Zk3n309VElk4poVjYO
+      - EMAIL_PASS =U2FsdGVkX18glcPEPcBHk8c39Mi5C3JNi08m55jVDuHvnuIipzYP35ER5ro1kEP+
+
     depends_on:
       - db
     networks:
@@ -23,9 +33,9 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: my_database
-      MYSQL_USER: user
-      MYSQL_PASSWORD: user_password
+      MYSQL_DATABASE:   CRM
+      MYSQL_USER: crm_user
+      MYSQL_PASSWORD: pass1234
     ports:
       - "3306:3306"
     volumes:
