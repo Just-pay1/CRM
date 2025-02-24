@@ -29,7 +29,7 @@ lerna-debug.log*
 Thumbs.db
 
 # GitHub workflows and dependencies (optional)
-.github/
+# .github/
 
 # Dependencies lock files (optional)
 package-lock.json
