@@ -157,10 +157,15 @@ export class MerchantService {
         }
 
         await merchant.update({
-            operation_approved: true
+            operation_approved: true,
+            is_onboarding: true
         })
 
         return true
+
+    }
+
+    async addUserToMerchant(data: any){
 
     }
 }

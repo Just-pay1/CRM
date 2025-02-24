@@ -164,9 +164,9 @@ class AuthService {
     async confirmPinCode(args: any) {
         const { pinCode, currentUser } = args;
 
-        const user = await User.findOne({ where: {email: currentUser.email} })
+        const user = await User.findOne({ where: { email: currentUser.email } })
         console.log('old', user?.dataValues.pincode);
-        
+
         const isTheOld = await verifyHash(String(pinCode), user?.dataValues.pincode);
 
         if (!isTheOld) {
@@ -185,14 +185,18 @@ class AuthService {
         } = args
 
         console.log(currentUser);
-        
 
-        let user = await User.findOne({ where: {email: currentUser.email} })
+
+        let user = await User.findOne({ where: { email: currentUser.email } })
 
         const passwordIsMatching = await verifyHash(oldPassword, user?.dataValues.password);
 
         if (!passwordIsMatching) {
             throw WebError.BadRequest('Old password is incorrect, please review.')
+        }
+
+        if (oldPassword === newPassword) {
+            throw WebError.BadRequest('New password can not be the same as old password, please review.')
         }
 
         if (newPassword !== confirmedPassword) {
@@ -219,17 +223,17 @@ class AuthService {
         let user = await User.findOne({ where: { email: currentUser.email } });
         const pinCodeIsMatching = await verifyHash(String(oldPinCode), user?.dataValues.pincode)
 
-        if(!pinCodeIsMatching) {
+        if (!pinCodeIsMatching) {
             throw WebError.BadRequest('Old pin code is incorrect, please review.')
         }
 
-        if(newPinCode !== confirmedPinCode){
+        if (newPinCode !== confirmedPinCode) {
             throw WebError.BadRequest('Confirmed pin code is not matching.')
         }
 
         let hashedPincode = await createHash(String(newPinCode));
         console.log('before', user?.dataValues);
-        
+
         await user?.update({
             pincode: hashedPincode
         })

@@ -37,4 +37,9 @@ export class MerchantController {
         const response = await this.service.operationApprove(req.body);
         responseHandler(res, 200, 'Approverd successfully!', response)
     }
+
+    public addUserToMerchant = async (req: Request, res: Response, next: NextFunction) => {
+        const response = await this.service.addUserToMerchant(req.body);
+        responseHandler(res, 200, 'User added to the merchant successfully!', response)
+    }
 }
