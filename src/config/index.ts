@@ -20,3 +20,7 @@ export const EMAIL = decrypt(process.env.EMAIL!);
 export const EMAIL_PASS = decrypt(process.env.EMAIL_PASS!);
 
 // console.log(EMAIL, EMAIL_PASS);
+
+// RABBITMQ 
+export const RABBITMQ_URL = process.env.RABBITMQ_URL;
+export const MERCHANT_USERS_QUEUE = process.env.MERCHANT_USERS_QUEUE;

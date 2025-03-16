@@ -16,7 +16,7 @@ export async function dbConnection() {
     try {
         await mysql.authenticate();
         await mysql.sync({ force: false });
-        console.log(`Connection has been established successfully!`)
+        console.log(`== Connection has been established successfully! ==`)
     } catch (error) {
         console.log(`unable to connect to database:`, error)
     }
