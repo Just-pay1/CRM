@@ -38,10 +38,16 @@ export class MerchantRoutes {
             asyncHandler(this.controller.financialApprove)
         );
 
-        this.router.get('/operation-approve',
+        this.router.post('/operation-approve',
             validateSchemas(merchantSchemas.details),
             verifyToken,
             asyncHandler(this.controller.operationApprove)
+        );
+
+        this.router.post('/add-users',
+            validateSchemas(merchantSchemas.add_users),
+            verifyToken,
+            asyncHandler(this.controller.addUserToMerchant)
         );
     }
 }

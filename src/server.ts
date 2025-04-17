@@ -6,7 +6,7 @@ const port = app.get("port");
 
 async function startApp() {
     await dbConnection();
-    const rabbitMQ = await RabbitMQ.getInstance();
+    // const rabbitMQ = await RabbitMQ.getInstance();
 }
 
 const server = app.listen(port, () => {

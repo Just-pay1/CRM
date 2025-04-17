@@ -1,6 +1,7 @@
 import { Merchant } from "../models/merchant-model";
+import { makeRequest } from "../utilities/makeInternalRequest";
 import { WebError } from "../utilities/web-errors";
-import { Request } from 'express';
+import { Request, response } from 'express';
 
 export class MerchantService {
 
@@ -89,16 +90,16 @@ export class MerchantService {
         const { id, user } = data;
 
         const merchant = await Merchant.findOne({ where: { id } });
-        if(!merchant){
+        if (!merchant) {
             throw WebError.BadRequest(`invalid merchant id, please review.`)
         }
 
         const needApprove = [
-            { 
+            {
                 isApproved: merchant.dataValues.financial_approved,
                 action: '/merchant/financial-approve'
             },
-            { 
+            {
                 isApproved: merchant.dataValues.operation_approved,
                 action: '/merchant/operation-approve'
             }
@@ -124,7 +125,7 @@ export class MerchantService {
             throw WebError.BadRequest(`invalid merchant ID, please review.`);
         }
 
-        if(merchant.dataValues.financial_approved){
+        if (merchant.dataValues.financial_approved) {
             throw WebError.BadRequest(`This merchant is already approved, please review.`);
         }
 
@@ -148,11 +149,11 @@ export class MerchantService {
             throw WebError.BadRequest(`invalid merchant ID, please review.`);
         }
 
-        if(!merchant.dataValues.financial_approved){
+        if (!merchant.dataValues.financial_approved) {
             throw WebError.BadRequest(`This merchant is not financially approved yet, please review.`);
         }
 
-        if(merchant.dataValues.operation_approved){
+        if (merchant.dataValues.operation_approved) {
             throw WebError.BadRequest(`This merchant is already approved, please review.`);
         }
 
@@ -165,7 +166,32 @@ export class MerchantService {
 
     }
 
-    async addUserToMerchant(data: any){
+    async addUserToMerchant(data: any) {
+        const { merchant_id } = data;
+        const merchant = await Merchant.findOne({ where: { id: merchant_id } });
+        if (!merchant?.dataValues.is_onboarding) {
+            throw WebError.BadRequest(`This profile is not on boarding yet, please review.`)
+        }
+        const context = {
+            merchant_id: data.merchant_id,
+            first_name: data.first_name,
+            middle_name: data.middle_name,
+            last_name: data.last_name,
+            email: data.email,
+            mobile: data.mobile,
+            dob: data.dob,
+            working_hours: data.working_hours,
+            working_days: data.working_days,
+            role: data.role,
+        }
+        const response = await makeRequest({
+        method: 'post',
+        path: 'merchant-internal-requests/add-user',
+        service: 'merchant',
+        context,
+        })
 
+        return response;
     }
+
 }

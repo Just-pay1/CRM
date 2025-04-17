@@ -1,5 +1,5 @@
 import { MerchantService } from "../services/merchant-service";
-import { Request, Response, NextFunction } from 'express'; 
+import { Request, Response, NextFunction } from 'express';
 import { responseHandler } from "../utilities/api-response";
 
 export class MerchantController {
@@ -9,7 +9,7 @@ export class MerchantController {
         this.service = new MerchantService();
     }
 
-    public createNewCustomer =  async (req: Request, res: Response, next: NextFunction) => {
+    public createNewCustomer = async (req: Request, res: Response, next: NextFunction) => {
         const response = await this.service.createNewCustomer(req.body);
         responseHandler(res, 200, 'Request to create a new Merchant Profile is submitted!', response)
     }
