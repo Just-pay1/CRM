@@ -1,4 +1,6 @@
 import { Merchant } from "../models/merchant-model";
+import RabbitMQ from "../rabbitMQ/rabbitmq";
+import { MerchantAttributes } from "../utilities/common-interfaces";
 import { makeRequest } from "../utilities/makeInternalRequest";
 import { WebError } from "../utilities/web-errors";
 import { Request, response } from 'express';
@@ -172,6 +174,37 @@ export class MerchantService {
         if (!merchant?.dataValues.is_onboarding) {
             throw WebError.BadRequest(`This profile is not on boarding yet, please review.`)
         }
+
+        if (!merchant.dataValues.is_live) {
+            await merchant.update( { is_live: true } );
+            const rabbitMQ = await RabbitMQ.getInstance();
+            // create the object that we will send in the queue
+            const merchantObj: MerchantAttributes = {
+                merchant_id: merchant.dataValues.id,
+                legal_name: merchant.dataValues.legal_name,
+                commercial_name: merchant.dataValues.commercial_name,
+                address: merchant.dataValues.address,
+                commercial_reg_number: merchant.dataValues.commercial_reg_number,
+                license_issue_date: merchant.dataValues.license_issue_date,
+                license_exp_date: merchant.dataValues.license_exp_date,
+                tax_id_number: merchant.dataValues.tax_id_number,
+                telephone_number: merchant.dataValues.telephone_number,
+                admin_email: merchant.dataValues.admin_email,
+                business_type: merchant.dataValues.business_type,
+                bank_name: merchant.dataValues.bank_name,
+                account_holder_name: merchant.dataValues.account_holder_name,
+                account_type: merchant.dataValues.account_type,
+                account_number: merchant.dataValues.account_number,
+                iban: merchant.dataValues.iban,
+                swift: merchant.dataValues.swift,
+                settlement_time: merchant.dataValues.settlement_time,
+                settlement_period: merchant.dataValues.settlement_period,
+                commission_amount: merchant.dataValues.commission_amount,
+                commission_setup: merchant.dataValues.commission_setup,
+            }
+            await rabbitMQ.pushActiveMerchant(merchantObj);
+        }
+
         const context = {
             merchant_id: data.merchant_id,
             first_name: data.first_name,
