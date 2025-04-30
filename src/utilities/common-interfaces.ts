@@ -20,4 +20,6 @@ export interface MerchantAttributes {
     settlement_period: string;
     commission_amount: number;
     commission_setup: string;
+    longitude: string;
+    latitude: string;
 }

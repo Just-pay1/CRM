@@ -117,7 +117,15 @@ Merchant.init(
             type: DataTypes.BOOLEAN,
             defaultValue: false,
             allowNull: false
-        }
+        },
+        longitude: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        latitude: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
     },
     {
         sequelize: mysql,

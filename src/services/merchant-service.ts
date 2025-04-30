@@ -29,6 +29,8 @@ export class MerchantService {
             settlement_time,
             commission_setup,
             commission_amount,
+            longitude,
+            latitude,
             user
         } = data;
 
@@ -66,6 +68,8 @@ export class MerchantService {
                 settlement_time,
                 commission_setup,
                 commission_amount,
+                longitude,
+                latitude,
             }
         )
 
@@ -201,6 +205,8 @@ export class MerchantService {
                 settlement_period: merchant.dataValues.settlement_period,
                 commission_amount: merchant.dataValues.commission_amount,
                 commission_setup: merchant.dataValues.commission_setup,
+                longitude: merchant.dataValues.longitude,
+                latitude: merchant.dataValues.latitude,
             }
             await rabbitMQ.pushActiveMerchant(merchantObj);
         }

@@ -36,6 +36,9 @@ export const merchantSchemas = {
 
         commission_setup: Joi.string().valid("Fixed", "Percentage").required(),
         commission_amount: Joi.number().min(0).max(100).required(),
+
+        longitude: Joi.string().required(),
+        latitude: Joi.string().required(),
     }),
 
     list: Joi.object().keys({
