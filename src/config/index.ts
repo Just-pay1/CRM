@@ -3,7 +3,6 @@ import { decrypt } from '../utilities/encrypt-decrypt';
 import path from 'path';
 
 const env = process.env.NODE_ENV || 'development';
-dotenv.config({ path: path.resolve(__dirname, `.env.${env}`) });
 dotenv.config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
 
 console.log(`Server running in ${env} mode on port ${process.env.PORT}`);
