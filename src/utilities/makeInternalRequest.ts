@@ -1,20 +1,19 @@
 import axios, { AxiosError, AxiosRequestHeaders } from "axios";
-import { MERCHANT_URL, CORE_URL, MOBILE_URL } from "../config";
+import { MERCHANT_URL, BILLING_URL } from "../config";
 import { WebError } from "./web-errors";
 
 export const makeRequest = async (args: {
     method?: 'get' | 'post' | 'put' | 'delete';
-    service?: 'core' | 'merchant' | 'mobile';
+    service?: 'merchant' | 'billing';
     path: string;
     context?: object;
     headers?: AxiosRequestHeaders;
 }): Promise<any> => {
     try {
-        const { method = 'post', service = 'core', path, context = {}, headers = {} } = args;
+        const { method = 'post', service = 'merchant', path, context = {}, headers = {} } = args;
         const serviceUrl = {
             merchant: MERCHANT_URL,
-            core: CORE_URL,
-            mobile: MOBILE_URL,
+            billing: BILLING_URL,
         }[service];
 
         console.log(`${serviceUrl}/${path}`)
