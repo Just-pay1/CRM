@@ -7,6 +7,55 @@ import { createHash } from '../utilities/hash-password';
 
 class UserService {
 
+    async createAdminUser(req: Request){
+        const {
+            first_name,
+            middle_name,
+            last_name,
+            email,
+            password,
+            pincode,
+            mobile,
+            dob,
+            working_hours,
+            working_days,
+            role,
+        } = req.body
+
+        const userWithSameEmail = await User.findOne({ where: { email: email } });
+        const userWithSameMobile = await User.findOne({ where: { mobile: mobile } });
+        if (userWithSameEmail) {
+            throw WebError.BadRequest(`The email is already associated with an existing user`)
+        }
+        if (userWithSameMobile) {
+            throw WebError.BadRequest(`The mobile is already associated with an existing user`)
+        }
+
+        let hashedPassword = await createHash(password)
+        const hashedPinCode = await createHash(String(pincode))
+
+
+        const newUser = await User.create(
+            {
+                first_name,
+                middle_name,
+                last_name,
+                email,
+                password: hashedPassword,
+                pincode: hashedPinCode,
+                mobile,
+                dob,
+                working_hours,
+                working_days: working_days.join('-'),
+                role,
+                is_first_time: false
+            }
+        )
+
+        return newUser.dataValues
+
+    }
+
     async createNewUser(req: Request) {
         const {
             first_name,
