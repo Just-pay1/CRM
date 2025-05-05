@@ -1,8 +1,12 @@
 import * as dotenv from 'dotenv';
 import { decrypt } from '../utilities/encrypt-decrypt';
+import path from 'path';
 
-dotenv.config();
+const env = process.env.NODE_ENV || 'development';
+dotenv.config({ path: path.resolve(__dirname, `.env.${env}`) });
+dotenv.config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
 
+console.log(`Server running in ${env} mode on port ${process.env.PORT}`);
 // this data will be also encrypted and decrypted when the server is ready 
 
 // APP CONFIG
@@ -11,8 +15,9 @@ export const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 // SERVICES URLS 
 export const MERCHANT_URL = process.env.MERCHANT_URL;
-export const MOBILE_URL = process.env.MOBILE_URL;
-export const CORE_URL = process.env.CORE_URL;
+export const BILLING_URL = process.env.BILLING_URL;
+
+// console.log(BILLING_URL);
 
 // DB VARIABLES 
 export const DB_NAME = process.env.DB_NAME;
@@ -29,5 +34,7 @@ export const EMAIL_PASS = decrypt(process.env.EMAIL_PASS!);
 // RABBITMQ 
 export const RABBITMQ_IP = process.env.RABBITMQ_IP;
 export const RABBITMQ_PORT = process.env.RABBITMQ_PORT;
+export const RABBITMQ_USERNAME = process.env.RABBITMQ_USERNAME;
+export const RABBITMQ_PASSWORD = process.env.RABBITMQ_PASSWORD;
 export const ACTIVE_MERCHANTS = process.env.ACTIVE_MERCHANTS;
 export const MAILS_QUEUE = process.env.MAILS_QUEUE
