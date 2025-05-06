@@ -2,7 +2,7 @@ import { Router } from "express";
 import asyncHandler from "../middlewares/asyncWrapper";
 import UserController from "../controllers/user-controller";
 import { validateSchemas } from "../middlewares/validateRequests";
-import { setPassword, setPinCode, userCreate } from "../schemas/user-schemas";
+import { adminUser, setPassword, setPinCode, userCreate } from "../schemas/user-schemas";
 import { detailsSchema, listSchema } from "../schemas/shared-schemas";
 import { verifyToken } from "../middlewares/token";
 
@@ -20,6 +20,11 @@ class UserRoutes {
             validateSchemas(userCreate),
             verifyToken,
             asyncHandler(this.controller.handleCreateNewUserReq)
+        )
+
+        this.router.post('/create-admin', 
+            validateSchemas(adminUser),
+            asyncHandler(this.controller.createAdmin)
         )
 
         this.router.get('/list', 

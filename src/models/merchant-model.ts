@@ -126,6 +126,11 @@ Merchant.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
+        fee_from: {
+            type: DataTypes.ENUM('user', 'merchant'),
+            defaultValue: 'merchant',
+            allowNull: false,
+        }
     },
     {
         sequelize: mysql,

@@ -17,7 +17,10 @@ export const merchantSchemas = {
             .required(),
         tax_id_number: Joi.string().length(9).pattern(/^\d+$/).required(),
 
-        telephone_number: Joi.string().length(10).pattern(/^\d+$/).required(),
+        telephone_number: Joi.string()
+        .max(12)
+        .pattern(/^\+\d+$/)
+        .required(),
         admin_email: Joi.string().email().required(),
 
         business_type: Joi.string().required(),
@@ -25,12 +28,11 @@ export const merchantSchemas = {
         bank_name: Joi.string().required(),
         account_holder_name: Joi.string().required(),
         account_type: Joi.string().required(),
-        account_number: Joi.string().pattern(/^\d+$/).length(29).required(),
+        account_number: Joi.string().pattern(/^\d+$/).length(16).required(),
         iban: Joi.string().allow(null).required(),
         swift: Joi.string().allow(null).required(),
 
         settlement_period: Joi.string()
-            .valid("Daily", "Weekly", "Monthly")
             .required(),
         settlement_time: Joi.string().required(), // HH:mm format
 
@@ -39,6 +41,7 @@ export const merchantSchemas = {
 
         longitude: Joi.string().required(),
         latitude: Joi.string().required(),
+        fee_from: Joi.string().valid('user', 'merchant').required().default('merchant'),
     }),
 
     list: Joi.object().keys({
@@ -59,7 +62,7 @@ export const merchantSchemas = {
         last_name: Joi.string().min(3).required(),
         dob: Joi.date().less("1-1-2010").required(),
         email: Joi.string().email().required(),
-        mobile: Joi.number().min(11).required(),
+        mobile: Joi.string().length(11).required(),
         working_hours: Joi.number().required(),
         working_days: Joi.array()
             .items(

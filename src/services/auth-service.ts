@@ -17,7 +17,7 @@ class AuthService {
         } = req.body
 
         const user = await User.findOne({ where: { email } })
-        console.log(user);
+        // console.log(user);
 
         if (!user) {
             throw WebError.NotFound('User not found, please review.')
@@ -89,9 +89,9 @@ class AuthService {
             throw WebError.BadRequest(`Invalid Token`)
         }
 
-        console.log(tokenID);
+        // console.log(tokenID);
         let user = await User.findOne({ where: { resetToken: tokenID } })
-        console.log(user?.dataValues);
+        // console.log(user?.dataValues);
 
         if (!user) {
             throw WebError.NotFound(`User not found, please review.`)
@@ -102,14 +102,14 @@ class AuthService {
         }
 
         const hashedPassword = await createHash(newPassword)
-        console.log(hashedPassword);
+        // console.log(hashedPassword);
         // user.dataValues.password = hashedPassword
         await user.update({
             password: hashedPassword,
             is_first_time: false,
             resetToken: null
         });
-        console.log(user.dataValues);
+        // console.log(user.dataValues);
 
         return user
     }
@@ -165,7 +165,7 @@ class AuthService {
         const { pinCode, currentUser } = args;
 
         const user = await User.findOne({ where: { email: currentUser.email } })
-        console.log('old', user?.dataValues.pincode);
+        // console.log('old', user?.dataValues.pincode);
 
         const isTheOld = await verifyHash(String(pinCode), user?.dataValues.pincode);
 
@@ -184,7 +184,7 @@ class AuthService {
             currentUser
         } = args
 
-        console.log(currentUser);
+        // console.log(currentUser);
 
 
         let user = await User.findOne({ where: { email: currentUser.email } })
@@ -232,13 +232,13 @@ class AuthService {
         }
 
         let hashedPincode = await createHash(String(newPinCode));
-        console.log('before', user?.dataValues);
+        // console.log('before', user?.dataValues);
 
         await user?.update({
             pincode: hashedPincode
         })
 
-        console.log('after', user?.dataValues);
+        // console.log('after', user?.dataValues);
 
 
         return true

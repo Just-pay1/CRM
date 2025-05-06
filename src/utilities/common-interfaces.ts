@@ -22,4 +22,18 @@ export interface MerchantAttributes {
     commission_setup: string;
     longitude: string;
     latitude: string;
+    fee_from: 'user' | 'merchant';
+}
+
+export interface MerchantUsers {
+    merchant_id: string,
+    first_name: string,
+    middle_name: string,
+    last_name: string,
+    email: string,
+    mobile: string,
+    dob: Date,
+    working_hours: string,
+    working_days: string,
+    role: string,
 }
