@@ -1,6 +1,6 @@
 import amqp, { Channel, ChannelModel, ConsumeMessage } from "amqplib";
-import { ACTIVE_MERCHANTS, RABBITMQ_IP, MAILS_QUEUE, RABBITMQ_PORT, RABBITMQ_PASSWORD, RABBITMQ_USERNAME } from "../config";
-import { MerchantAttributes } from "../utilities/common-interfaces";
+import { ACTIVE_MERCHANTS, RABBITMQ_IP, MAILS_QUEUE, RABBITMQ_PORT, RABBITMQ_PASSWORD, RABBITMQ_USERNAME, MERCHANT_USERS_QUEUE } from "../config";
+import { MerchantAttributes, MerchantUsers } from "../utilities/common-interfaces";
 
 class RabbitMQ {
     private static instance: RabbitMQ;
@@ -8,6 +8,7 @@ class RabbitMQ {
     // private readonly url = RABBITMQ_IP || "amqp://localhost";
     private mailChannel: Channel | null = null;
     private activeMerchantsChannel: Channel | null = null;
+    private merchantUsersChannel: Channel | null = null;
 
 
 
@@ -34,10 +35,12 @@ class RabbitMQ {
 
             this.activeMerchantsChannel = await this.connection.createChannel();
             this.mailChannel = await this.connection.createChannel();
+            this.merchantUsersChannel = await this.connection.createChannel();
 
             // assert each queue to its channel
             await this.activeMerchantsChannel.assertQueue(ACTIVE_MERCHANTS!);
             await this.mailChannel.assertQueue(MAILS_QUEUE!)
+            await this.merchantUsersChannel.assertQueue(MERCHANT_USERS_QUEUE!)
 
             console.log('== RabbitMQ Connected ==');
         } catch (error) {
@@ -52,6 +55,11 @@ class RabbitMQ {
     public async pushActiveMerchant(context: MerchantAttributes) {
         await this.activeMerchantsChannel?.sendToQueue(ACTIVE_MERCHANTS!, Buffer.from(JSON.stringify(context)))
     }
+
+    // public async pushMerchantUser(user: MerchantUsers) {
+    //     await this.merchantUsersChannel?.sendToQueue(MERCHANT_USERS_QUEUE!,  Buffer.from(JSON.stringify(user)))
+    //     console.log('pushed to q');
+    // }
 }
 
 export default RabbitMQ;

@@ -1,6 +1,6 @@
 import { Merchant } from "../models/merchant-model";
 import RabbitMQ from "../rabbitMQ/rabbitmq";
-import { MerchantAttributes } from "../utilities/common-interfaces";
+import { MerchantAttributes, MerchantUsers } from "../utilities/common-interfaces";
 import { makeRequest } from "../utilities/makeInternalRequest";
 import { WebError } from "../utilities/web-errors";
 import { Request, response } from 'express';
@@ -29,6 +29,9 @@ export class MerchantService {
             settlement_time,
             commission_setup,
             commission_amount,
+            longitude,
+            latitude,
+            fee_from,
             user
         } = data;
 
@@ -66,6 +69,9 @@ export class MerchantService {
                 settlement_time,
                 commission_setup,
                 commission_amount,
+                longitude,
+                latitude,
+                fee_from
             }
         )
 
@@ -115,7 +121,7 @@ export class MerchantService {
     }
 
     async financialApprove(data: any) {
-        console.log(data);
+        // console.log(data);
         const { id, user } = data;
 
         if (user.role !== 'financial' && user.role !== 'superadmin') {
@@ -170,6 +176,7 @@ export class MerchantService {
 
     async addUserToMerchant(data: any) {
         const { merchant_id } = data;
+        const rabbitMQ = await RabbitMQ.getInstance();
         const merchant = await Merchant.findOne({ where: { id: merchant_id } });
         if (!merchant?.dataValues.is_onboarding) {
             throw WebError.BadRequest(`This profile is not on boarding yet, please review.`)
@@ -177,7 +184,6 @@ export class MerchantService {
 
         if (!merchant.dataValues.is_live) {
             await merchant.update( { is_live: true } );
-            const rabbitMQ = await RabbitMQ.getInstance();
             // create the object that we will send in the queue
             const merchantObj: MerchantAttributes = {
                 merchant_id: merchant.dataValues.id,
@@ -201,12 +207,15 @@ export class MerchantService {
                 settlement_period: merchant.dataValues.settlement_period,
                 commission_amount: merchant.dataValues.commission_amount,
                 commission_setup: merchant.dataValues.commission_setup,
+                longitude: merchant.dataValues.longitude,
+                latitude: merchant.dataValues.latitude,
+                fee_from: merchant.dataValues.fee_from,
             }
             await rabbitMQ.pushActiveMerchant(merchantObj);
         }
 
-        const context = {
-            merchant_id: data.merchant_id,
+        const context: MerchantUsers = {
+            merchant_id: merchant.dataValues.id,
             first_name: data.first_name,
             middle_name: data.middle_name,
             last_name: data.last_name,
@@ -214,9 +223,10 @@ export class MerchantService {
             mobile: data.mobile,
             dob: data.dob,
             working_hours: data.working_hours,
-            working_days: data.working_days,
+            working_days: data.working_days.join('-'),
             role: data.role,
         }
+        // await rabbitMQ.pushMerchantUser(context)
         const response = await makeRequest({
         method: 'post',
         path: 'merchant-internal-requests/add-user',

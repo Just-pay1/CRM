@@ -117,6 +117,19 @@ Merchant.init(
             type: DataTypes.BOOLEAN,
             defaultValue: false,
             allowNull: false
+        },
+        longitude: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        latitude: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        fee_from: {
+            type: DataTypes.ENUM('user', 'merchant'),
+            defaultValue: 'merchant',
+            allowNull: false,
         }
     },
     {

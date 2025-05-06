@@ -153,7 +153,7 @@ class UserService {
         if (!user) {
             throw WebError.BadRequest('userId is invalid, please review')
         }
-        console.log(user);
+        // console.log(user);
 
         return user;
     }
