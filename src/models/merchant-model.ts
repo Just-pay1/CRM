@@ -91,7 +91,7 @@ Merchant.init(
             allowNull: false,
         },
         commission_setup: {
-            type: DataTypes.STRING,
+            type: DataTypes.ENUM('Percentage', 'Fixed'),
             allowNull: false,
         },
         commission_amount: {
@@ -128,7 +128,7 @@ Merchant.init(
         },
         fee_from: {
             type: DataTypes.ENUM('user', 'merchant'),
-            defaultValue: 'merchant',
+            defaultValue: 'user',
             allowNull: false,
         }
     },

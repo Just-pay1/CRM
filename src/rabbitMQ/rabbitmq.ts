@@ -1,5 +1,5 @@
 import amqp, { Channel, ChannelModel, ConsumeMessage } from "amqplib";
-import { ACTIVE_MERCHANTS, RABBITMQ_IP, MAILS_QUEUE, RABBITMQ_PORT, RABBITMQ_PASSWORD, RABBITMQ_USERNAME, MERCHANT_USERS_QUEUE } from "../config";
+import { ACTIVE_MERCHANTS, RABBITMQ_IP, MAILS_QUEUE, RABBITMQ_PORT, RABBITMQ_PASSWORD, RABBITMQ_USERNAME, MERCHANT_USERS_QUEUE, REF_NUMBER_ACTIVE_MERCHANTS_QUEUE } from "../config";
 import { MerchantAttributes, MerchantUsers } from "../utilities/common-interfaces";
 
 class RabbitMQ {
@@ -25,7 +25,7 @@ class RabbitMQ {
         try {
             this.connection = await amqp.connect({
                 protocol: 'amqps',
-                hostname: RABBITMQ_IP || 'localhost', 
+                hostname: RABBITMQ_IP || 'localhost',
                 port: Number(RABBITMQ_PORT) || 5672,
                 username: RABBITMQ_USERNAME,
                 password: RABBITMQ_PASSWORD,
@@ -37,10 +37,19 @@ class RabbitMQ {
             this.mailChannel = await this.connection.createChannel();
             this.merchantUsersChannel = await this.connection.createChannel();
 
+            await this.activeMerchantsChannel.assertExchange('broadcastMerchantsExchange', 'fanout', {
+                durable: true
+            });
+
             // assert each queue to its channel
             await this.activeMerchantsChannel.assertQueue(ACTIVE_MERCHANTS!);
+            await this.activeMerchantsChannel.assertQueue(REF_NUMBER_ACTIVE_MERCHANTS_QUEUE!);
             await this.mailChannel.assertQueue(MAILS_QUEUE!)
             await this.merchantUsersChannel.assertQueue(MERCHANT_USERS_QUEUE!)
+
+            await this.activeMerchantsChannel.bindQueue(ACTIVE_MERCHANTS!, 'broadcastMerchantsExchange', '');
+            await this.activeMerchantsChannel.bindQueue(REF_NUMBER_ACTIVE_MERCHANTS_QUEUE!, 'broadcastMerchantsExchange', '');
+
 
             console.log('== RabbitMQ Connected ==');
         } catch (error) {
@@ -48,18 +57,18 @@ class RabbitMQ {
         }
     }
 
-    public async sendMail(message: object) {
-        await this.mailChannel?.sendToQueue(MAILS_QUEUE!, Buffer.from(JSON.stringify(message)))
+    public sendMail(message: object) {
+        this.mailChannel?.sendToQueue(MAILS_QUEUE!, Buffer.from(JSON.stringify(message)))
     }
 
-    public async pushActiveMerchant(context: MerchantAttributes) {
-        await this.activeMerchantsChannel?.sendToQueue(ACTIVE_MERCHANTS!, Buffer.from(JSON.stringify(context)))
+    public pushActiveMerchant(context: MerchantAttributes) {
+        // this.activeMerchantsChannel?.sendToQueue(ACTIVE_MERCHANTS!, Buffer.from(JSON.stringify(context)))
+        // console.log(`added to the ${ACTIVE_MERCHANTS}`)
+        // this.activeMerchantsChannel?.sendToQueue(REF_NUMBER_ACTIVE_MERCHANTS_QUEUE!, Buffer.from(JSON.stringify(context)))
+        // console.log(`added to the ${REF_NUMBER_ACTIVE_MERCHANTS_QUEUE}`)
+        this.activeMerchantsChannel?.publish('broadcastMerchantsExchange', '', Buffer.from(JSON.stringify(context)));
     }
 
-    // public async pushMerchantUser(user: MerchantUsers) {
-    //     await this.merchantUsersChannel?.sendToQueue(MERCHANT_USERS_QUEUE!,  Buffer.from(JSON.stringify(user)))
-    //     console.log('pushed to q');
-    // }
 }
 
 export default RabbitMQ;
