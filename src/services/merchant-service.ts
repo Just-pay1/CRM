@@ -178,6 +178,11 @@ export class MerchantService {
         const { merchant_id } = data;
         const rabbitMQ = await RabbitMQ.getInstance();
         const merchant = await Merchant.findOne({ where: { id: merchant_id } });
+
+        if (!merchant) {
+            throw WebError.BadRequest(`invalid merchant id, please review.`)
+        }
+
         if (!merchant?.dataValues.is_onboarding) {
             throw WebError.BadRequest(`This profile is not on boarding yet, please review.`)
         }
@@ -211,7 +216,7 @@ export class MerchantService {
                 latitude: merchant.dataValues.latitude,
                 fee_from: merchant.dataValues.fee_from,
             }
-            await rabbitMQ.pushActiveMerchant(merchantObj);
+            rabbitMQ.pushActiveMerchant(merchantObj);
         }
 
         const context: MerchantUsers = {
