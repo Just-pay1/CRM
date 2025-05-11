@@ -75,6 +75,8 @@ export class MerchantService {
             }
         )
 
+        console.log(newMerchant.dataValues)
+
 
         return newMerchant;
     }
@@ -129,6 +131,7 @@ export class MerchantService {
         }
 
         const merchant = await Merchant.findOne({ where: { id } });
+        console.log(merchant?.dataValues)
         if (!merchant) {
             throw WebError.BadRequest(`invalid merchant ID, please review.`);
         }
@@ -153,6 +156,7 @@ export class MerchantService {
         }
 
         const merchant = await Merchant.findOne({ where: { id } });
+        console.log(merchant?.dataValues)
         if (!merchant) {
             throw WebError.BadRequest(`invalid merchant ID, please review.`);
         }
@@ -216,6 +220,7 @@ export class MerchantService {
                 latitude: merchant.dataValues.latitude,
                 fee_from: merchant.dataValues.fee_from,
             }
+            console.log(merchantObj)
             rabbitMQ.pushActiveMerchant(merchantObj);
         }
 
