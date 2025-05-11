@@ -95,7 +95,7 @@ Merchant.init(
             allowNull: false,
         },
         commission_amount: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.DECIMAL(10, 2),
             allowNull: false,
         },
         financial_approved: {

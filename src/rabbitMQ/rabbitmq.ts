@@ -1,5 +1,5 @@
 import amqp, { Channel, ChannelModel, ConsumeMessage } from "amqplib";
-import { ACTIVE_MERCHANTS, RABBITMQ_IP, MAILS_QUEUE, RABBITMQ_PORT, RABBITMQ_PASSWORD, RABBITMQ_USERNAME, MERCHANT_USERS_QUEUE, REF_NUMBER_ACTIVE_MERCHANTS_QUEUE } from "../config";
+import { ACTIVE_MERCHANTS, RABBITMQ_IP, MAILS_QUEUE, RABBITMQ_PORT, RABBITMQ_PASSWORD, RABBITMQ_USERNAME, MERCHANT_USERS_QUEUE, REF_NUMBER_ACTIVE_MERCHANTS_QUEUE, WALLET_ACTIVE_MERCHANTS_QUEUE } from "../config";
 import { MerchantAttributes, MerchantUsers } from "../utilities/common-interfaces";
 
 class RabbitMQ {
@@ -44,11 +44,13 @@ class RabbitMQ {
             // assert each queue to its channel
             await this.activeMerchantsChannel.assertQueue(ACTIVE_MERCHANTS!);
             await this.activeMerchantsChannel.assertQueue(REF_NUMBER_ACTIVE_MERCHANTS_QUEUE!);
+            await this.activeMerchantsChannel.assertQueue(WALLET_ACTIVE_MERCHANTS_QUEUE!, { durable: false });
             await this.mailChannel.assertQueue(MAILS_QUEUE!)
             await this.merchantUsersChannel.assertQueue(MERCHANT_USERS_QUEUE!)
 
             await this.activeMerchantsChannel.bindQueue(ACTIVE_MERCHANTS!, 'broadcastMerchantsExchange', '');
             await this.activeMerchantsChannel.bindQueue(REF_NUMBER_ACTIVE_MERCHANTS_QUEUE!, 'broadcastMerchantsExchange', '');
+            // await this.activeMerchantsChannel.bindQueue(WALLET_ACTIVE_MERCHANTS_QUEUE!, 'broadcastMerchantsExchange', '');
 
 
             console.log('== RabbitMQ Connected ==');
@@ -67,6 +69,9 @@ class RabbitMQ {
         // this.activeMerchantsChannel?.sendToQueue(REF_NUMBER_ACTIVE_MERCHANTS_QUEUE!, Buffer.from(JSON.stringify(context)))
         // console.log(`added to the ${REF_NUMBER_ACTIVE_MERCHANTS_QUEUE}`)
         this.activeMerchantsChannel?.publish('broadcastMerchantsExchange', '', Buffer.from(JSON.stringify(context)));
+        const userId = context.merchant_id;
+        this.activeMerchantsChannel?.sendToQueue(REF_NUMBER_ACTIVE_MERCHANTS_QUEUE!, Buffer.from(JSON.stringify({userId})))
+        console.log(`added to the all queues`)
     }
 
 }
