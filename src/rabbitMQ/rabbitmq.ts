@@ -70,7 +70,7 @@ class RabbitMQ {
         // console.log(`added to the ${REF_NUMBER_ACTIVE_MERCHANTS_QUEUE}`)
         this.activeMerchantsChannel?.publish('broadcastMerchantsExchange', '', Buffer.from(JSON.stringify(context)));
         const userId = context.merchant_id;
-        this.activeMerchantsChannel?.sendToQueue(REF_NUMBER_ACTIVE_MERCHANTS_QUEUE!, Buffer.from(JSON.stringify({userId})))
+        this.activeMerchantsChannel?.sendToQueue(WALLET_ACTIVE_MERCHANTS_QUEUE!, Buffer.from(JSON.stringify({userId})))
         console.log(`added to the all queues`)
     }
 

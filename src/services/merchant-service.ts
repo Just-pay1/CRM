@@ -191,6 +191,27 @@ export class MerchantService {
             throw WebError.BadRequest(`This profile is not on boarding yet, please review.`)
         }
 
+        const context: MerchantUsers = {
+            merchant_id: merchant.dataValues.id,
+            first_name: data.first_name,
+            middle_name: data.middle_name,
+            last_name: data.last_name,
+            email: data.email,
+            mobile: data.mobile,
+            dob: data.dob,
+            working_hours: data.working_hours,
+            working_days: data.working_days.join('-'),
+            role: data.role,
+        }
+        // await rabbitMQ.pushMerchantUser(context)
+        const response = await makeRequest({
+        method: 'post',
+        path: 'merchant-internal-requests/add-user',
+        service: 'merchant',
+        context,
+        })
+
+
         if (!merchant.dataValues.is_live) {
             await merchant.update( { is_live: true } );
             // create the object that we will send in the queue
@@ -223,26 +244,6 @@ export class MerchantService {
             console.log(merchantObj)
             rabbitMQ.pushActiveMerchant(merchantObj);
         }
-
-        const context: MerchantUsers = {
-            merchant_id: merchant.dataValues.id,
-            first_name: data.first_name,
-            middle_name: data.middle_name,
-            last_name: data.last_name,
-            email: data.email,
-            mobile: data.mobile,
-            dob: data.dob,
-            working_hours: data.working_hours,
-            working_days: data.working_days.join('-'),
-            role: data.role,
-        }
-        // await rabbitMQ.pushMerchantUser(context)
-        const response = await makeRequest({
-        method: 'post',
-        path: 'merchant-internal-requests/add-user',
-        service: 'merchant',
-        context,
-        })
 
         return response;
     }
