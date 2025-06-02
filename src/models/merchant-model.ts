@@ -130,6 +130,10 @@ Merchant.init(
             type: DataTypes.ENUM('user', 'merchant'),
             defaultValue: 'user',
             allowNull: false,
+        },
+        service_id: {
+            type: DataTypes.UUID,
+            allowNull: false,
         }
     },
     {

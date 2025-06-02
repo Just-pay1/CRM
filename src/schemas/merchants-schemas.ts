@@ -42,6 +42,7 @@ export const merchantSchemas = {
         longitude: Joi.string().required(),
         latitude: Joi.string().required(),
         fee_from: Joi.string().valid('user', 'merchant').required().default('merchant'),
+        service_id: Joi.string().required(),
     }),
 
     list: Joi.object().keys({

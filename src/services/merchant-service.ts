@@ -32,6 +32,7 @@ export class MerchantService {
             longitude,
             latitude,
             fee_from,
+            service_id,
             user
         } = data;
 
@@ -41,6 +42,12 @@ export class MerchantService {
 
         const sameMail = await Merchant.findOne({ where: { admin_email } });
         const sameNumber = await Merchant.findOne({ where: { telephone_number } });
+        const service = await makeRequest({
+            method: 'post',
+            path: 'services/service-details',
+            service: 'billing',
+            context: { service_id }
+        })
 
 
         if (sameMail || sameNumber) {
@@ -71,7 +78,8 @@ export class MerchantService {
                 commission_amount,
                 longitude,
                 latitude,
-                fee_from
+                fee_from,
+                service_id
             }
         )
 
