@@ -42,4 +42,9 @@ export class MerchantController {
         const response = await this.service.addUserToMerchant(req.body);
         responseHandler(res, 200, 'User added to the merchant successfully!', response)
     }
+
+    public listAllServices = async (req: Request, res: Response, next: NextFunction) => {
+        const list = await this.service.listAllServices();
+        responseHandler(res, 200, 'All services listed successfully!', list)
+    }
 }

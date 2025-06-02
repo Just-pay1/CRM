@@ -49,5 +49,10 @@ export class MerchantRoutes {
             verifyToken,
             asyncHandler(this.controller.addUserToMerchant)
         );
+
+        this.router.get('/list-available-services',
+            verifyToken,
+            asyncHandler(this.controller.listAllServices)
+        )
     }
 }

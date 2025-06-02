@@ -205,15 +205,15 @@ export class MerchantService {
         }
         // await rabbitMQ.pushMerchantUser(context)
         const response = await makeRequest({
-        method: 'post',
-        path: 'merchant-internal-requests/add-user',
-        service: 'merchant',
-        context,
+            method: 'post',
+            path: 'merchant-internal-requests/add-user',
+            service: 'merchant',
+            context,
         })
 
 
         if (!merchant.dataValues.is_live) {
-            await merchant.update( { is_live: true } );
+            await merchant.update({ is_live: true });
             // create the object that we will send in the queue
             const merchantObj: MerchantAttributes = {
                 merchant_id: merchant.dataValues.id,
@@ -245,6 +245,15 @@ export class MerchantService {
             rabbitMQ.pushActiveMerchant(merchantObj);
         }
 
+        return response;
+    }
+
+    async listAllServices() {
+        const response = await makeRequest({
+            method: 'post',
+            path: 'services/list-all-services',
+            service: 'billing',
+        })
         return response;
     }
 
