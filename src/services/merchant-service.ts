@@ -265,4 +265,33 @@ export class MerchantService {
         return response;
     }
 
+    async listUsers(id: string, page: number, limit: number) {
+        const merchant = await Merchant.findByPk(id);
+        if (!merchant) {
+            throw WebError.BadRequest(`invalid merchant id, please review.`)
+        }
+
+        if(!merchant.dataValues.is_live) {
+            throw WebError.BadRequest(`This merchant is not live yet, please review.`)
+        }
+
+        const offset = (page - 1) * limit;
+
+        const context = {
+            page,
+            limit,
+            offset,
+            id
+        }
+
+        const response = await makeRequest({
+            method: 'post',
+            path: 'internal/list-merchant-users',
+            service: 'merchant',
+            context
+        })
+        return response;
+
+    }
+
 }
