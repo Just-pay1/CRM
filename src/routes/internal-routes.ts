@@ -2,6 +2,7 @@ import { Router } from "express";
 import { InternalController } from "../controllers/internal-controller";
 import { validateSchemas } from "../middlewares/validateRequests";
 import { merchantSchemas } from "../schemas/merchants-schemas";
+import asyncHandler from "../middlewares/asyncWrapper";
 
 export class InternalRoutes {
     public router = Router();
@@ -14,7 +15,7 @@ export class InternalRoutes {
     private initializeInternalRoutes() { 
         this.router.post('/merchant-details',
             validateSchemas(merchantSchemas.details),
-            this.controller.merchantDetails
+            asyncHandler(this.controller.merchantDetails)
         )
     }
 }
