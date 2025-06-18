@@ -72,4 +72,10 @@ export const merchantSchemas = {
             .required(),
         role: Joi.string().valid("financial").required(),
     }),
+
+    listUsers: Joi.object({
+        id: Joi.string().required(),
+        page: Joi.number().min(-1).required(),
+        limit: Joi.number().min(5).default(10).optional(),
+    })
 };

@@ -51,14 +51,9 @@ export class MerchantRoutes {
         );
 
         this.router.get('/list-merchant-users', 
-            validateSchemas(merchantSchemas.details),
+            validateSchemas(merchantSchemas.listUsers, 'query'),
             verifyToken,
             asyncHandler(this.controller.listUsers)
-        )
-
-        this.router.get('/list-available-services',
-            verifyToken,
-            asyncHandler(this.controller.listAllServices)
         )
 
     }

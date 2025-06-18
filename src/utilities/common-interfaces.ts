@@ -23,6 +23,7 @@ export interface MerchantAttributes {
     longitude: string;
     latitude: string;
     fee_from: 'user' | 'merchant';
+    service_id: string;
 }
 
 export interface MerchantUsers {

@@ -49,6 +49,10 @@ export class MerchantService {
             context: { service_id }
         })
 
+        if(!service) {
+            throw WebError.BadRequest(`invalid service_id, please review`)
+        }
+
 
         if (sameMail || sameNumber) {
             throw WebError.BadRequest(`Admin mail or Telephone number is in use, please review`)
@@ -248,6 +252,7 @@ export class MerchantService {
                 longitude: merchant.dataValues.longitude,
                 latitude: merchant.dataValues.latitude,
                 fee_from: merchant.dataValues.fee_from,
+                service_id: merchant.dataValues.service_id,
             }
             console.log(merchantObj)
             rabbitMQ.pushActiveMerchant(merchantObj);
@@ -256,16 +261,11 @@ export class MerchantService {
         return response;
     }
 
-    async listAllServices() {
-        const response = await makeRequest({
-            method: 'post',
-            path: 'services/list-all-services',
-            service: 'billing',
-        })
-        return response;
-    }
-
-    async listUsers(id: string, page: number, limit: number) {
+    async listUsers(data: any) {
+        // console.log(data)
+        const page = +data.page! === 0 ? 1 : +data.page!;
+        const limit = +data.limit!;
+        const id = data.id
         const merchant = await Merchant.findByPk(id);
         if (!merchant) {
             throw WebError.BadRequest(`invalid merchant id, please review.`)
@@ -275,18 +275,16 @@ export class MerchantService {
             throw WebError.BadRequest(`This merchant is not live yet, please review.`)
         }
 
-        const offset = (page - 1) * limit;
-
         const context = {
             page,
             limit,
-            offset,
             id
         }
+        console.log(context)
 
         const response = await makeRequest({
             method: 'post',
-            path: 'internal/list-merchant-users',
+            path: 'merchant-internal-requests/list-merchant-users',
             service: 'merchant',
             context
         })

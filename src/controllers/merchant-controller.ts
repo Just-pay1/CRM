@@ -44,14 +44,8 @@ export class MerchantController {
     }
 
     public listUsers = async (req: Request, res: Response, next: NextFunction) => {
-        const page = +req.query.page! === 0 ? 1 : +req.query.page!;
-        const limit = +req.query.limit!;
-        const id = req.body.id
-        const list = await this.service.listUsers(id, page, limit);
+        const list = await this.service.listUsers(req.query);
+        responseHandler(res, 200, 'Users listed successfully!', list);
     }
 
-    public listAllServices = async (req: Request, res: Response, next: NextFunction) => {
-        const list = await this.service.listAllServices();
-        responseHandler(res, 200, 'All services listed successfully!', list)
-    }
 }
