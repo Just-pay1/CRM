@@ -1,6 +1,6 @@
 import amqp, { Channel, ChannelModel, ConsumeMessage } from "amqplib";
 import { ACTIVE_MERCHANTS, RABBITMQ_IP, MAILS_QUEUE, RABBITMQ_PORT, RABBITMQ_PASSWORD, RABBITMQ_USERNAME, MERCHANT_USERS_QUEUE, REF_NUMBER_ACTIVE_MERCHANTS_QUEUE, WALLET_ACTIVE_MERCHANTS_QUEUE } from "../config";
-import { MerchantAttributes, MerchantUsers } from "../utilities/common-interfaces";
+import { EmailRequest, MerchantAttributes, MerchantUsers } from "../utilities/common-interfaces";
 
 class RabbitMQ {
     private static instance: RabbitMQ;
@@ -59,8 +59,9 @@ class RabbitMQ {
         }
     }
 
-    public sendMail(message: object) {
+    public sendMail(message: EmailRequest) {
         this.mailChannel?.sendToQueue(MAILS_QUEUE!, Buffer.from(JSON.stringify(message)))
+        console.log('mail sent');
     }
 
     public pushActiveMerchant(context: MerchantAttributes) {

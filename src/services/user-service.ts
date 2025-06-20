@@ -4,6 +4,8 @@ import { WebError } from '../utilities/web-errors';
 import { generateRandomPassword } from '../utilities/generate-passwords';
 import { sendMail } from '../utilities/emails';
 import { createHash } from '../utilities/hash-password';
+import { EmailRequest } from '../utilities/common-interfaces';
+import RabbitMQ from '../rabbitMQ/rabbitmq';
 
 class UserService {
 
@@ -104,11 +106,20 @@ class UserService {
         )
 
         const mailBody = `
-            Your initial password is ${password}.
+            Your initial password is '${password}' .
             don't forget to set a new password after your first time login 
         `
 
-        sendMail(email, 'User Password', mailBody)
+        const mailObj: EmailRequest = {
+            to: email,
+            subject: 'User Password',
+            content: mailBody
+        }
+
+        const rabbitMQ = await RabbitMQ.getInstance();
+        rabbitMQ.sendMail(mailObj);
+
+        // sendMail(email, 'User Password', mailBody)
 
         // console.log(user);
     }
@@ -117,23 +128,22 @@ class UserService {
         const page = req.query.page ? +req.query.page : -1;
         const limit = req.query.limit ? +req.query.limit : 10;
         const offset = (page - 1) * limit;
-        const searchKey = req.query.searchKey
         const currentUser = req.body.user
-        let where: any = {
-            where: { role: currentUser.role },
-            attributes: { exclude: ["password", "activeTokenID", "is_loggedIn", "pincode", "resetToken"] },
+        const exclude = ["password", "activeTokenID", "is_loggedIn", "pincode", "resetToken"];
+        let opt: any = {
+            attributes: { exclude  },
         };
 
         if (page != -1) {
-            where.offset = offset;
-            where.limit = limit;
+            opt = {
+                ...opt,
+                offset: offset,
+                limit: limit
+            }
         }
 
-        if (searchKey) {
-            where.role = searchKey
-        }
 
-        const { count, rows } = await User.findAndCountAll(where)
+        const { count, rows } = await User.findAndCountAll(opt)
         const response = {
             count,
             activePage: page,

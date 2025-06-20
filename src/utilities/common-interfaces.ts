@@ -38,3 +38,9 @@ export interface MerchantUsers {
     working_days: string,
     role: string,
 }
+
+export interface EmailRequest {
+    to: string;
+    subject: string;
+    content: string;
+  }
