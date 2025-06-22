@@ -14,4 +14,9 @@ export class InternalController {
     responseHandler(res, 200, 'Merchant details fetched successfully!', response)
    }
 
+   public getAllServicesWithItsActiveMerchants = async (req: Request, res: Response, next: NextFunction) => {
+    const response = await this.service.getAllServicesWithItsActiveMerchants(req.body);
+    responseHandler(res, 200, 'Services with active merchants fetched successfully!', response)
+   }
+
 }
