@@ -48,8 +48,8 @@ class RabbitMQ {
             await this.mailChannel.assertQueue(MAILS_QUEUE!)
             await this.merchantUsersChannel.assertQueue(MERCHANT_USERS_QUEUE!)
 
-            await this.activeMerchantsChannel.bindQueue(ACTIVE_MERCHANTS!, 'broadcastMerchantsExchange', '');
-            await this.activeMerchantsChannel.bindQueue(REF_NUMBER_ACTIVE_MERCHANTS_QUEUE!, 'broadcastMerchantsExchange', '');
+            // await this.activeMerchantsChannel.bindQueue(ACTIVE_MERCHANTS!, 'broadcastMerchantsExchange', '');
+            // await this.activeMerchantsChannel.bindQueue(REF_NUMBER_ACTIVE_MERCHANTS_QUEUE!, 'broadcastMerchantsExchange', '');
             // await this.activeMerchantsChannel.bindQueue(WALLET_ACTIVE_MERCHANTS_QUEUE!, 'broadcastMerchantsExchange', '');
 
 
@@ -64,15 +64,26 @@ class RabbitMQ {
         console.log('mail sent');
     }
 
-    public pushActiveMerchant(context: MerchantAttributes) {
-        // this.activeMerchantsChannel?.sendToQueue(ACTIVE_MERCHANTS!, Buffer.from(JSON.stringify(context)))
-        // console.log(`added to the ${ACTIVE_MERCHANTS}`)
-        // this.activeMerchantsChannel?.sendToQueue(REF_NUMBER_ACTIVE_MERCHANTS_QUEUE!, Buffer.from(JSON.stringify(context)))
-        // console.log(`added to the ${REF_NUMBER_ACTIVE_MERCHANTS_QUEUE}`)
-        this.activeMerchantsChannel?.publish('broadcastMerchantsExchange', '', Buffer.from(JSON.stringify(context)));
+    // public pushActiveMerchant(context: MerchantAttributes) {
+    //     // this.activeMerchantsChannel?.sendToQueue(ACTIVE_MERCHANTS!, Buffer.from(JSON.stringify(context)))
+    //     // console.log(`added to the ${ACTIVE_MERCHANTS}`)
+    //     // this.activeMerchantsChannel?.sendToQueue(REF_NUMBER_ACTIVE_MERCHANTS_QUEUE!, Buffer.from(JSON.stringify(context)))
+    //     // console.log(`added to the ${REF_NUMBER_ACTIVE_MERCHANTS_QUEUE}`)
+    //     this.activeMerchantsChannel?.publish('broadcastMerchantsExchange', '', Buffer.from(JSON.stringify(context)));
+    //     const userId = context.merchant_id;
+    //     this.activeMerchantsChannel?.sendToQueue(WALLET_ACTIVE_MERCHANTS_QUEUE!, Buffer.from(JSON.stringify({userId})))
+    // }
+
+    public pushActiveMerchantToReferenceNum (context: MerchantAttributes) {
         const userId = context.merchant_id;
+        this.activeMerchantsChannel?.sendToQueue(REF_NUMBER_ACTIVE_MERCHANTS_QUEUE!, Buffer.from(JSON.stringify(context)))
         this.activeMerchantsChannel?.sendToQueue(WALLET_ACTIVE_MERCHANTS_QUEUE!, Buffer.from(JSON.stringify({userId})))
-        console.log(`added to the all queues`)
+    }
+
+    public pushActiveMerchantToBilling (context: MerchantAttributes) {
+        const userId = context.merchant_id;
+        this.activeMerchantsChannel?.sendToQueue(ACTIVE_MERCHANTS!, Buffer.from(JSON.stringify(context)))
+        this.activeMerchantsChannel?.sendToQueue(WALLET_ACTIVE_MERCHANTS_QUEUE!, Buffer.from(JSON.stringify({userId})))
     }
 
 }
