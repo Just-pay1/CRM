@@ -17,11 +17,11 @@ export const mysql = new Sequelize(
                 rejectUnauthorized: false // use with caution: disables cert verification
             }
         },
-        // logging: (msg) => {
-        //     if (msg.toLowerCase().includes('error')) {
-        //         console.error(msg); // Log only errors
-        //     }
-        // }
+        logging: (msg) => {
+            if (msg.toLowerCase().includes('error')) {
+                console.error(msg); // Log only errors
+            }
+        }
     }
 )
 

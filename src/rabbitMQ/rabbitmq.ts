@@ -37,9 +37,9 @@ class RabbitMQ {
             this.mailChannel = await this.connection.createChannel();
             this.merchantUsersChannel = await this.connection.createChannel();
 
-            await this.activeMerchantsChannel.assertExchange('broadcastMerchantsExchange', 'fanout', {
-                durable: true
-            });
+            // await this.activeMerchantsChannel.assertExchange('broadcastMerchantsExchange', 'fanout', {
+            //     durable: true
+            // });
 
             // assert each queue to its channel
             await this.activeMerchantsChannel.assertQueue(ACTIVE_MERCHANTS!);
