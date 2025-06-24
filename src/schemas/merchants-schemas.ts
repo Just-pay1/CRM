@@ -77,5 +77,13 @@ export const merchantSchemas = {
         id: Joi.string().required(),
         page: Joi.number().min(-1).required(),
         limit: Joi.number().min(5).default(10).optional(),
-    })
+    }),
+
+    uploadlicense: Joi.object({
+        id: Joi.string().required(),
+    }),
+
+    uploadcommercial_reg: Joi.object({
+        id: Joi.string().required(),
+    }),
 };

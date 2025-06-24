@@ -2,6 +2,11 @@ import { MerchantService } from "../services/merchant-service";
 import { Request, Response, NextFunction } from 'express';
 import { responseHandler } from "../utilities/api-response";
 
+// Extend Request interface to include file property from multer
+interface MulterRequest extends Request {
+    file?: any;
+}
+
 export class MerchantController {
     private service: MerchantService;
 
@@ -48,4 +53,29 @@ export class MerchantController {
         responseHandler(res, 200, 'Users listed successfully!', list);
     }
 
+    public uploadlicense = async (req: MulterRequest, res: Response, next: NextFunction) => {
+        if (!req.file) {
+            throw new Error('No file uploaded');
+        }
+
+        const merchant_id = req.body
+        const buffer = req.file.buffer;
+        const filename = `merchant-license-${Date.now()}.pdf`;
+        const response = await this.service.uploadlicense(buffer, filename, merchant_id);
+        
+        responseHandler(res, 200, 'License uploaded successfully!', response);
+    }
+
+    public uploadcommercial_reg = async (req: MulterRequest, res: Response, next: NextFunction) => {
+        if (!req.file) {
+            throw new Error('No file uploaded');
+        }
+
+        const merchant_id = req.body
+        const buffer = req.file.buffer;
+        const filename = `merchant-commercial-reg-${Date.now()}.pdf`;
+        const response = await this.service.uploadcommercial_reg(buffer, filename, merchant_id);
+        
+        responseHandler(res, 200, 'Commercial registration uploaded successfully!', response);
+    }
 }

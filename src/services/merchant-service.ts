@@ -5,7 +5,7 @@ import { MerchantAttributes, MerchantUsers } from "../utilities/common-interface
 import { makeRequest } from "../utilities/makeInternalRequest";
 import { WebError } from "../utilities/web-errors";
 import { Request, response } from 'express';
-
+import { cloudinary } from "../config";
 export class MerchantService {
 
     async createNewCustomer(data: any) {
@@ -310,4 +310,72 @@ export class MerchantService {
         }else { rabbitMQ.pushActiveMerchantToReferenceNum(merchantObj); }
     }
 
+    async uploadlicense(fileBuffer: Buffer, customId: string, data: any) {
+        try {
+
+            const base64Image = fileBuffer.toString('base64');
+            const dataURI = `data:image/jpeg;base64,${base64Image}`;
+            
+
+            // Upload to Cloudinary
+            const result = await cloudinary.uploader.upload(dataURI, {
+                public_id: customId ,
+                resource_type: 'raw', // Only allow PDF files
+            });
+
+
+            if (!result.secure_url) {
+                throw new Error('Upload failed - no secure URL returned');
+            }
+
+            const merchant = await Merchant.findOne({ where: { id: data.id } });
+            if (!merchant) {
+                throw WebError.BadRequest(`invalid merchant id, please review.`)
+            }
+            await merchant.update({
+                license_url: result.secure_url
+            })
+            return {
+                secure_url: result.secure_url,
+                public_id: result.public_id,
+            };
+        } catch (error) {
+            console.error('Upload service error:', error);
+            throw WebError.InternalServerError('Failed to upload image');
+        }
+    }
+
+    async uploadcommercial_reg(fileBuffer: Buffer, customId: string, data: any) {
+        try {
+
+            const base64Image = fileBuffer.toString('base64');
+            const dataURI = `data:image/jpeg;base64,${base64Image}`;
+            
+            // Upload to Cloudinary
+            const result = await cloudinary.uploader.upload(dataURI, {
+                public_id: customId ,
+                resource_type: 'raw', // Only allow PDF files
+            });
+
+
+            if (!result.secure_url) {
+                throw new Error('Upload failed - no secure URL returned');
+            }
+
+            const merchant = await Merchant.findOne({ where: { id: data.id } });
+            if (!merchant) {
+                throw WebError.BadRequest(`invalid merchant id, please review.`)
+            }
+            await merchant.update({
+                commercial_reg_url: result.secure_url
+            })
+            return {
+                secure_url: result.secure_url,
+                public_id: result.public_id,
+            };
+        } catch (error) {
+            console.error('Upload service error:', error);
+            throw WebError.InternalServerError('Failed to upload image');
+        }
+    }
 }
