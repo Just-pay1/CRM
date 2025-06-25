@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyToken } from "../middlewares/token";
-import { validateSchemas } from "../middlewares/validateRequests";
+import { validateSchemas, validateFormData } from "../middlewares/validateRequests";
 import asyncHandler from "../middlewares/asyncWrapper";
 import { MerchantController } from "../controllers/merchant-controller";
 import { merchantSchemas } from "../schemas/merchants-schemas";
@@ -17,8 +17,9 @@ export class MerchantRoutes {
 
     private initializeRoutes() {
         this.router.post(`/create`,
-            validateSchemas(merchantSchemas.create_new),
             verifyToken,
+            this.upload.fields([{ name: 'file1'}, { name: 'file2'}]),
+            validateFormData(merchantSchemas.create_new),
             asyncHandler(this.controller.createNewCustomer)
         );
 
@@ -57,19 +58,10 @@ export class MerchantRoutes {
             verifyToken,
             asyncHandler(this.controller.listUsers)
         );
-
-        this.router.post('/upload-license',
-            //validateSchemas(merchantSchemas.uploadlicense),
+        this.router.post("/get-file-urls",
+            validateSchemas(merchantSchemas.get_file_urls),
             verifyToken,
-            this.upload.single('file'), 
-            asyncHandler(this.controller.uploadlicense)
-        );
-
-        this.router.post('/commercial_reg',
-            //validateSchemas(merchantSchemas.uploadcommercial_reg),
-            verifyToken,
-            this.upload.single('file'), 
-            asyncHandler(this.controller.uploadcommercial_reg)
+            asyncHandler(this.controller.getMerchantFiles)
         )
 
     }

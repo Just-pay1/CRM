@@ -14,8 +14,8 @@ export class MerchantController {
         this.service = new MerchantService();
     }
 
-    public createNewCustomer = async (req: Request, res: Response, next: NextFunction) => {
-        const response = await this.service.createNewCustomer(req.body);
+    public createNewCustomer = async (req: MulterRequest, res: Response, next: NextFunction) => {
+        const response = await this.service.createNewCustomer(req.body, req.files);
         responseHandler(res, 200, 'Request to create a new Merchant Profile is submitted!', response)
     }
 
@@ -53,29 +53,9 @@ export class MerchantController {
         responseHandler(res, 200, 'Users listed successfully!', list);
     }
 
-    public uploadlicense = async (req: MulterRequest, res: Response, next: NextFunction) => {
-        if (!req.file) {
-            throw new Error('No file uploaded');
-        }
-
-        const merchant_id = req.body
-        const buffer = req.file.buffer;
-        const filename = `merchant-license-${Date.now()}.pdf`;
-        const response = await this.service.uploadlicense(buffer, filename, merchant_id);
-        
-        responseHandler(res, 200, 'License uploaded successfully!', response);
+    public getMerchantFiles = async (req: Request, res: Response, next: NextFunction) => {
+        const response = await this.service.getMerchantFiles(req.body);
+        responseHandler(res, 200, 'Files fetched successfully!', response)
     }
 
-    public uploadcommercial_reg = async (req: MulterRequest, res: Response, next: NextFunction) => {
-        if (!req.file) {
-            throw new Error('No file uploaded');
-        }
-
-        const merchant_id = req.body
-        const buffer = req.file.buffer;
-        const filename = `merchant-commercial-reg-${Date.now()}.pdf`;
-        const response = await this.service.uploadcommercial_reg(buffer, filename, merchant_id);
-        
-        responseHandler(res, 200, 'Commercial registration uploaded successfully!', response);
-    }
 }

@@ -8,7 +8,42 @@ import { Request, response } from 'express';
 import { cloudinary } from "../config";
 export class MerchantService {
 
-    async createNewCustomer(data: any) {
+    private async uploadMerchantFiles(files: any) {
+        if (!files?.file1 || !files?.file2) {
+            throw WebError.BadRequest('No files uploaded');
+        }
+        const buffer1 = files?.file1?.[0].buffer
+        const buffer2 = files?.file2?.[0].buffer
+        const base64Image1 = buffer1.toString('base64');
+        const base64Image2 = buffer2.toString('base64');    
+        const dataURI1 = `data:application/pdf;base64,${base64Image1}`;  // the actual content of the file.
+        const dataURI2 = `data:application/pdf;base64,${base64Image2}`;
+        
+        const filename1 = `merchant-license-${Date.now()}.pdf`;     // just the filename
+        const filename2 = `merchant-commercial-reg-${Date.now()}.pdf`;
+
+        const [result1, result2] = await Promise.all([ // returns an array with results.
+            cloudinary.uploader.upload(dataURI1, {
+              public_id: filename1,
+              resource_type: 'raw',
+            }),
+            cloudinary.uploader.upload(dataURI2, {
+              public_id: filename2,
+              resource_type: 'raw',
+            }),
+          ]);
+        
+        if (!result1.secure_url || !result2.secure_url) {
+            throw WebError.InternalServerError('Failed to upload PDFS');
+        }
+
+        return {
+            license_url: result1.secure_url,
+            commercial_reg_url: result2.secure_url
+        };
+    }
+
+    async createNewCustomer(body: any, files: any) {
         const {
             legal_name,
             commercial_name,
@@ -35,11 +70,11 @@ export class MerchantService {
             fee_from,
             service_id,
             user
-        } = data;
+        } = body;
 
-        if (user.role !== 'sales' && user.role !== 'superadmin') {
-            throw WebError.Forbidden(`You are not authorized to do this action.`);
-        }
+        // if (user.role !== 'sales' && user.role !== 'superadmin') {
+        //     throw WebError.Forbidden(`You are not authorized to do this action.`);
+        // }
 
         const sameMail = await Merchant.findOne({ where: { admin_email } });
         const sameNumber = await Merchant.findOne({ where: { telephone_number } });
@@ -59,6 +94,9 @@ export class MerchantService {
         if (sameMail || sameNumber) {
             throw WebError.BadRequest(`Admin mail or Telephone number is in use, please review`)
         }
+
+        // the files stuff
+        const filesResult = await this.uploadMerchantFiles(files);
 
         const newMerchant = await Merchant.create(
             {
@@ -85,7 +123,8 @@ export class MerchantService {
                 longitude,
                 latitude,
                 fee_from,
-                service_id
+                service_id,
+                ...filesResult
             }
         )
 
@@ -94,6 +133,8 @@ export class MerchantService {
 
         return newMerchant;
     }
+
+
 
     async listAllMerchnts(req: Request) {
         const page = +req.query.page! === 0 ? 1 : +req.query.page!;
@@ -310,72 +351,17 @@ export class MerchantService {
         }else { rabbitMQ.pushActiveMerchantToReferenceNum(merchantObj); }
     }
 
-    async uploadlicense(fileBuffer: Buffer, customId: string, data: any) {
-        try {
+    async getMerchantFiles(data: any) {
+        const { id } = data;
+        const merchant = await Merchant.findByPk(id);
+        if (!merchant) {
+            throw WebError.BadRequest(`invalid merchant id, please review.`)    
+        }
 
-            const base64Image = fileBuffer.toString('base64');
-            const dataURI = `data:image/jpeg;base64,${base64Image}`;
-            
-
-            // Upload to Cloudinary
-            const result = await cloudinary.uploader.upload(dataURI, {
-                public_id: customId ,
-                resource_type: 'raw', // Only allow PDF files
-            });
-
-
-            if (!result.secure_url) {
-                throw new Error('Upload failed - no secure URL returned');
-            }
-
-            const merchant = await Merchant.findOne({ where: { id: data.id } });
-            if (!merchant) {
-                throw WebError.BadRequest(`invalid merchant id, please review.`)
-            }
-            await merchant.update({
-                license_url: result.secure_url
-            })
-            return {
-                secure_url: result.secure_url,
-                public_id: result.public_id,
-            };
-        } catch (error) {
-            console.error('Upload service error:', error);
-            throw WebError.InternalServerError('Failed to upload image');
+        return {
+            license_url: merchant.dataValues.license_url,
+            commercial_reg_url: merchant.dataValues.commercial_reg_url
         }
     }
 
-    async uploadcommercial_reg(fileBuffer: Buffer, customId: string, data: any) {
-        try {
-
-            const base64Image = fileBuffer.toString('base64');
-            const dataURI = `data:image/jpeg;base64,${base64Image}`;
-            
-            // Upload to Cloudinary
-            const result = await cloudinary.uploader.upload(dataURI, {
-                public_id: customId ,
-                resource_type: 'raw', // Only allow PDF files
-            });
-
-
-            if (!result.secure_url) {
-                throw new Error('Upload failed - no secure URL returned');
-            }
-
-            const merchant = await Merchant.findOne({ where: { id: data.id } });
-            if (!merchant) {
-                throw WebError.BadRequest(`invalid merchant id, please review.`)
-            }
-            await merchant.update({
-                commercial_reg_url: result.secure_url
-            })
-            return {
-                secure_url: result.secure_url,
-                public_id: result.public_id,
-            };
-        } catch (error) {
-            console.error('Upload service error:', error);
-            throw WebError.InternalServerError('Failed to upload image');
-        }
-    }
 }
