@@ -5,44 +5,11 @@ import { MerchantAttributes, MerchantUsers } from "../utilities/common-interface
 import { makeRequest } from "../utilities/makeInternalRequest";
 import { WebError } from "../utilities/web-errors";
 import { Request, response } from 'express';
-import { cloudinary } from "../config";
+import { uploadFile } from "../utilities/upload-files";
+
 export class MerchantService {
-
-    private async uploadMerchantFiles(files: any) {
-        if (!files?.file1 || !files?.file2) {
-            throw WebError.BadRequest('No files uploaded');
-        }
-        const buffer1 = files?.file1?.[0].buffer
-        const buffer2 = files?.file2?.[0].buffer
-        const base64Image1 = buffer1.toString('base64');
-        const base64Image2 = buffer2.toString('base64');    
-        const dataURI1 = `data:application/pdf;base64,${base64Image1}`;  // the actual content of the file.
-        const dataURI2 = `data:application/pdf;base64,${base64Image2}`;
-        
-        const filename1 = `merchant-license-${Date.now()}.pdf`;     // just the filename
-        const filename2 = `merchant-commercial-reg-${Date.now()}.pdf`;
-
-        const [result1, result2] = await Promise.all([ // returns an array with results.
-            cloudinary.uploader.upload(dataURI1, {
-              public_id: filename1,
-              resource_type: 'raw',
-            }),
-            cloudinary.uploader.upload(dataURI2, {
-              public_id: filename2,
-              resource_type: 'raw',
-            }),
-          ]);
-        
-        if (!result1.secure_url || !result2.secure_url) {
-            throw WebError.InternalServerError('Failed to upload PDFS');
-        }
-
-        return {
-            license_url: result1.secure_url,
-            commercial_reg_url: result2.secure_url
-        };
-    }
-
+    private uploadMerchantFiles = uploadFile;
+ 
     async createNewCustomer(body: any, files: any) {
         const {
             legal_name,
@@ -96,7 +63,8 @@ export class MerchantService {
         }
 
         // the files stuff
-        const filesResult = await this.uploadMerchantFiles(files);
+        const merchant_license = await this.uploadMerchantFiles(files.file1[0], 'merchant-license');
+        const merchant_commercial_reg = await this.uploadMerchantFiles(files.file2[0], 'merchant-commercial-reg');
 
         const newMerchant = await Merchant.create(
             {
@@ -124,7 +92,8 @@ export class MerchantService {
                 latitude,
                 fee_from,
                 service_id,
-                ...filesResult
+                license_url: merchant_license.url,
+                commercial_reg_url: merchant_commercial_reg.url
             }
         )
 
@@ -350,18 +319,4 @@ export class MerchantService {
             rabbitMQ.pushActiveMerchantToBilling(merchantObj);
         }else { rabbitMQ.pushActiveMerchantToReferenceNum(merchantObj); }
     }
-
-    async getMerchantFiles(data: any) {
-        const { id } = data;
-        const merchant = await Merchant.findByPk(id);
-        if (!merchant) {
-            throw WebError.BadRequest(`invalid merchant id, please review.`)    
-        }
-
-        return {
-            license_url: merchant.dataValues.license_url,
-            commercial_reg_url: merchant.dataValues.commercial_reg_url
-        }
-    }
-
 }

@@ -2,6 +2,10 @@ import { Request, Response, NextFunction } from 'express';
 import UserService from '../services/user-service';
 import { responseHandler } from '../utilities/api-response';
 
+interface MulterRequest extends Request {
+    file?: any;
+}
+
 class UserController {
     private service: UserService;
 
@@ -9,8 +13,8 @@ class UserController {
         this.service = new UserService()
     }
 
-    public handleCreateNewUserReq = async (req: Request, res: Response, next: NextFunction) => {
-        await this.service.createNewUser(req);
+    public handleCreateNewUserReq = async (req: MulterRequest, res: Response, next: NextFunction) => {
+        await this.service.createNewUser(req.body, req.file);
         responseHandler(res, 201, 'User created successfully!')
     }
 

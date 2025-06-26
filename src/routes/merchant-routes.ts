@@ -58,11 +58,5 @@ export class MerchantRoutes {
             verifyToken,
             asyncHandler(this.controller.listUsers)
         );
-        this.router.post("/get-file-urls",
-            validateSchemas(merchantSchemas.get_file_urls),
-            verifyToken,
-            asyncHandler(this.controller.getMerchantFiles)
-        )
-
     }
 }

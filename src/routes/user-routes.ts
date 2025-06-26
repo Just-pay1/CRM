@@ -1,15 +1,17 @@
 import { Router } from "express";
 import asyncHandler from "../middlewares/asyncWrapper";
 import UserController from "../controllers/user-controller";
-import { validateSchemas } from "../middlewares/validateRequests";
-import { adminUser, setPassword, setPinCode, userCreate } from "../schemas/user-schemas";
+import { validateSchemas, validateFormData } from "../middlewares/validateRequests";
+import { adminUser, setPassword, setPinCode, userCreateFormData } from "../schemas/user-schemas";
 import { detailsSchema, listSchema } from "../schemas/shared-schemas";
 import { verifyToken } from "../middlewares/token";
+import multer from "multer";
 
 
 class UserRoutes {
     public router = Router();
     private controller = new UserController()
+    private upload = multer()
 
     constructor() {
         this.initializeUserRoutes();
@@ -17,8 +19,9 @@ class UserRoutes {
 
     private initializeUserRoutes() {
         this.router.post('/create', 
-            validateSchemas(userCreate),
             verifyToken,
+            this.upload.single('file'),
+            validateFormData(userCreateFormData),
             asyncHandler(this.controller.handleCreateNewUserReq)
         )
 

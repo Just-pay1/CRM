@@ -1,22 +1,58 @@
 import Joi from "joi";
 
-export const userCreate = Joi.object(
-    {
-        // personal data 
-        first_name: Joi.string().min(3).required(),
-        middle_name: Joi.string().min(3).required(),
-        last_name: Joi.string().min(3).required(),
-        dob: Joi.date().less('1-1-2010').required(),
-        email: Joi.string().email().required(),
-        mobile: Joi.number().min(11).required(),
-        //  JustPay data 
-        working_hours: Joi.number().required(),
-        working_days: Joi.array()
-            .items(Joi.string().valid('sat', 'sun', 'mon', 'tues', 'wed', 'thur', 'fri'))
-            .required(),
-        role: Joi.string().valid('superadmin', 'sales', 'operation', 'financial').required(),
-    }
-)
+// export const userCreate = Joi.object(
+//     {
+//         // personal data 
+//         first_name: Joi.string().min(3).required(),
+//         middle_name: Joi.string().min(3).required(),
+//         last_name: Joi.string().min(3).required(),
+//         dob: Joi.date().less('1-1-2010').required(),
+//         email: Joi.string().email().required(),
+//         mobile: Joi.number().min(11).required(),
+//         //  JustPay data 
+//         working_hours: Joi.number().required(),
+//         working_days: Joi.array()
+//             .items(Joi.string().valid('sat', 'sun', 'mon', 'tues', 'wed', 'thur', 'fri'))
+//             .required(),
+//         role: Joi.string().valid('superadmin', 'sales', 'operation', 'financial').required(),
+//     }
+// )
+
+// Schema for form data user creation (working_days as hyphen-separated string)
+export const userCreateFormData = Joi.object({
+    // personal data 
+    first_name: Joi.string().min(3).required(),
+    middle_name: Joi.string().min(3).required(),
+    last_name: Joi.string().min(3).required(),
+    dob: Joi.string().required(), // Keep as string for form_data
+    email: Joi.string().email().required(),
+    mobile: Joi.string().length(11).required(), // Keep as string for form_data
+    //  JustPay data 
+    working_hours: Joi.string().required(), // Keep as string for form_data
+    working_days: Joi.string()
+        .pattern(/^(sat|sun|mon|tues|wed|thur|fri)(-(sat|sun|mon|tues|wed|thur|fri))*$/)
+        .required()
+        .custom((value, helpers) => {
+            const days = value.split('-');
+            const validDays = ['sat', 'sun', 'mon', 'tues', 'wed', 'thur', 'fri'];
+            
+            // Check if all days are valid
+            for (const day of days) {
+                if (!validDays.includes(day)) {
+                    return helpers.error('any.invalid');
+                }
+            }
+            
+            // Check for duplicates
+            const uniqueDays = [...new Set(days)];
+            if (uniqueDays.length !== days.length) {
+                return helpers.error('any.invalid');
+            }
+            
+            return value;
+        }, 'Working Days Validation'),
+    role: Joi.string().valid('superadmin', 'sales', 'operation', 'financial').required(),
+})
 
 export const adminUser = Joi.object(
     {

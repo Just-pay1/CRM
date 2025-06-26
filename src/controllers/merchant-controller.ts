@@ -53,9 +53,4 @@ export class MerchantController {
         responseHandler(res, 200, 'Users listed successfully!', list);
     }
 
-    public getMerchantFiles = async (req: Request, res: Response, next: NextFunction) => {
-        const response = await this.service.getMerchantFiles(req.body);
-        responseHandler(res, 200, 'Files fetched successfully!', response)
-    }
-
 }
