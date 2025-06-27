@@ -1,12 +1,25 @@
 import * as dotenv from 'dotenv';
 import { decrypt } from '../utilities/encrypt-decrypt';
 import path from 'path';
-
+import { v2 as cloudinary } from 'cloudinary';
 const env = process.env.NODE_ENV || 'development';
 dotenv.config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
 
 console.log(`Server running in ${env} mode on port ${process.env.PORT}`);
 // this data will be also encrypted and decrypted when the server is ready 
+
+// Cloudinary Config
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+  api_key: process.env.CLOUDINARY_API_KEY!,
+  api_secret: process.env.CLOUDINARY_API_SECRET!,
+});
+
+export { cloudinary };
+
+
+
 
 // APP CONFIG
 export const PORT = process.env.PORT;

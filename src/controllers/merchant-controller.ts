@@ -2,6 +2,11 @@ import { MerchantService } from "../services/merchant-service";
 import { Request, Response, NextFunction } from 'express';
 import { responseHandler } from "../utilities/api-response";
 
+// Extend Request interface to include file property from multer
+interface MulterRequest extends Request {
+    file?: any;
+}
+
 export class MerchantController {
     private service: MerchantService;
 
@@ -9,8 +14,8 @@ export class MerchantController {
         this.service = new MerchantService();
     }
 
-    public createNewCustomer = async (req: Request, res: Response, next: NextFunction) => {
-        const response = await this.service.createNewCustomer(req.body);
+    public createNewCustomer = async (req: MulterRequest, res: Response, next: NextFunction) => {
+        const response = await this.service.createNewCustomer(req.body, req.files);
         responseHandler(res, 200, 'Request to create a new Merchant Profile is submitted!', response)
     }
 

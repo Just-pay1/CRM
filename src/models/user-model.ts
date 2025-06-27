@@ -104,6 +104,10 @@ User.init(
             type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0
+        },
+        img_url: {
+            type: DataTypes.STRING,
+            allowNull: true
         }
     },
     {

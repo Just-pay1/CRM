@@ -1,13 +1,15 @@
 import { Router } from "express";
 import { verifyToken } from "../middlewares/token";
-import { validateSchemas } from "../middlewares/validateRequests";
+import { validateSchemas, validateFormData } from "../middlewares/validateRequests";
 import asyncHandler from "../middlewares/asyncWrapper";
 import { MerchantController } from "../controllers/merchant-controller";
 import { merchantSchemas } from "../schemas/merchants-schemas";
+import multer from "multer";
 
 export class MerchantRoutes {
     public router = Router();
     private controller = new MerchantController();
+    private upload = multer();
 
     constructor() {
         this.initializeRoutes();
@@ -15,8 +17,9 @@ export class MerchantRoutes {
 
     private initializeRoutes() {
         this.router.post(`/create`,
-            validateSchemas(merchantSchemas.create_new),
             verifyToken,
+            this.upload.fields([{ name: 'file1'}, { name: 'file2'}]),
+            validateFormData(merchantSchemas.create_new),
             asyncHandler(this.controller.createNewCustomer)
         );
 
@@ -54,7 +57,6 @@ export class MerchantRoutes {
             validateSchemas(merchantSchemas.listUsers, 'query'),
             verifyToken,
             asyncHandler(this.controller.listUsers)
-        )
-
+        );
     }
 }

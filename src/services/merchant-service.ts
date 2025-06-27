@@ -5,10 +5,12 @@ import { MerchantAttributes, MerchantUsers } from "../utilities/common-interface
 import { makeRequest } from "../utilities/makeInternalRequest";
 import { WebError } from "../utilities/web-errors";
 import { Request, response } from 'express';
+import { uploadFile } from "../utilities/upload-files";
 
 export class MerchantService {
-
-    async createNewCustomer(data: any) {
+    private uploadMerchantFiles = uploadFile;
+ 
+    async createNewCustomer(body: any, files: any) {
         const {
             legal_name,
             commercial_name,
@@ -35,11 +37,11 @@ export class MerchantService {
             fee_from,
             service_id,
             user
-        } = data;
+        } = body;
 
-        if (user.role !== 'sales' && user.role !== 'superadmin') {
-            throw WebError.Forbidden(`You are not authorized to do this action.`);
-        }
+        // if (user.role !== 'sales' && user.role !== 'superadmin') {
+        //     throw WebError.Forbidden(`You are not authorized to do this action.`);
+        // }
 
         const sameMail = await Merchant.findOne({ where: { admin_email } });
         const sameNumber = await Merchant.findOne({ where: { telephone_number } });
@@ -59,6 +61,10 @@ export class MerchantService {
         if (sameMail || sameNumber) {
             throw WebError.BadRequest(`Admin mail or Telephone number is in use, please review`)
         }
+
+        // the files stuff
+        const merchant_license = await this.uploadMerchantFiles(files.file1[0], 'merchant-license');
+        const merchant_commercial_reg = await this.uploadMerchantFiles(files.file2[0], 'merchant-commercial-reg');
 
         const newMerchant = await Merchant.create(
             {
@@ -85,7 +91,9 @@ export class MerchantService {
                 longitude,
                 latitude,
                 fee_from,
-                service_id
+                service_id,
+                license_url: merchant_license.url,
+                commercial_reg_url: merchant_commercial_reg.url
             }
         )
 
@@ -94,6 +102,8 @@ export class MerchantService {
 
         return newMerchant;
     }
+
+
 
     async listAllMerchnts(req: Request) {
         const page = +req.query.page! === 0 ? 1 : +req.query.page!;
@@ -309,5 +319,4 @@ export class MerchantService {
             rabbitMQ.pushActiveMerchantToBilling(merchantObj);
         }else { rabbitMQ.pushActiveMerchantToReferenceNum(merchantObj); }
     }
-
 }

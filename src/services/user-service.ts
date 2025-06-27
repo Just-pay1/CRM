@@ -6,7 +6,7 @@ import { sendMail } from '../utilities/emails';
 import { createHash } from '../utilities/hash-password';
 import { EmailRequest } from '../utilities/common-interfaces';
 import RabbitMQ from '../rabbitMQ/rabbitmq';
-
+import { uploadFile } from '../utilities/upload-files';
 class UserService {
 
     async createAdminUser(req: Request){
@@ -58,7 +58,8 @@ class UserService {
 
     }
 
-    async createNewUser(req: Request) {
+    async createNewUser(body: any, file: any) {
+        
         const {
             first_name,
             middle_name,
@@ -70,11 +71,11 @@ class UserService {
             working_days,
             role,
             user
-        } = req.body
+        } = body
 
-        if(user.role !== 'superadmin'){
-            throw WebError.Forbidden(`You are not authorized to do this action.`)
-        }
+        // if(user.role !== 'superadmin'){
+        //     throw WebError.Forbidden(`You are not authorized to do this action.`)
+        // }
 
         const userWithSameEmail = await User.findOne({ where: { email: email } });
         const userWithSameMobile = await User.findOne({ where: { mobile: mobile } });
@@ -90,6 +91,7 @@ class UserService {
         const password = generateRandomPassword()
         let hashedPassword = await createHash(password)
 
+        const img_url = await uploadFile(file, 'user-profile');
         const newUser = await User.create(
             {
                 first_name,
@@ -100,8 +102,9 @@ class UserService {
                 mobile,
                 dob,
                 working_hours,
-                working_days: working_days.join('-'),
-                role
+                working_days, // Store as array directly instead of joining
+                role,
+                img_url: img_url.url,
             }
         )
 

@@ -141,7 +141,17 @@ export class Merchant extends Model {
                     },
                     onUpdate: 'CASCADE',
                     onDelete: 'CASCADE'
-                }
+                },
+                license_url: {
+                    type: DataTypes.STRING,
+                    allowNull: true,
+                    defaultValue: null,
+                },
+                commercial_reg_url: {
+                    type: DataTypes.STRING,
+                    allowNull: true,
+                    defaultValue: null,
+                },
             },
             {
                 sequelize,
