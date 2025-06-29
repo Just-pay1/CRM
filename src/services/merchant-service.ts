@@ -63,8 +63,8 @@ export class MerchantService {
         }
 
         // the files stuff
-        const merchant_license = await this.uploadMerchantFiles(files.file1[0], 'merchant-license');
-        const merchant_commercial_reg = await this.uploadMerchantFiles(files.file2[0], 'merchant-commercial-reg');
+        const merchant_license = await this.uploadMerchantFiles(files.license_url[0], 'merchant-license');
+        const merchant_commercial_reg = await this.uploadMerchantFiles(files.commercial_reg_url[0], 'merchant-commercial-reg');
 
         const newMerchant = await Merchant.create(
             {

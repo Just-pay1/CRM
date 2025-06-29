@@ -58,7 +58,7 @@ class UserService {
 
     }
 
-    async createNewUser(body: any, file: any) {
+    async createNewUser(body: any, image: any) {
         
         const {
             first_name,
@@ -91,7 +91,7 @@ class UserService {
         const password = generateRandomPassword()
         let hashedPassword = await createHash(password)
 
-        const img_url = await uploadFile(file, 'user-profile');
+        const img_url = await uploadFile(image, 'user-profile');
         const newUser = await User.create(
             {
                 first_name,
