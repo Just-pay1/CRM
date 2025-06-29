@@ -14,6 +14,12 @@ export class ServicesController {
         responseHandler(res, 200, 'All services listed successfully!', response);
     }
 
+    public details = async (req: Request, res: Response, next: NextFunction) => {
+        const service_id = req.body.service_id;
+        const response = await this.service.serviceDetails(service_id);
+        responseHandler(res, 200, ' Service fetched successfully!', response);
+    }
+
     public createNewService = async (req: Request, res: Response, next: NextFunction) => {
         const service_type = req.body.service_type;
         const response = await this.service.createNewService(service_type);
