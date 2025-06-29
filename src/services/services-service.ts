@@ -13,6 +13,14 @@ export class ServicesService {
             return response
         }
 
+        async serviceDetails(service_id: string) {
+            const service = await Service.findByPk(service_id)
+            if(!service){
+                throw WebError.BadRequest('invalid service_id, please review.')
+            }
+            return service;
+        }
+
         async createNewService(service_type: string) {
             const oldService = await Service.findOne({ where: { service_type } })
 

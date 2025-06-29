@@ -24,5 +24,10 @@ export class ServicesRoutes {
             verifyToken,
             asyncHandler(this.controller.createNewService)
         )
+
+        // internal req
+        this.router.post('/get-service',
+            asyncHandler(this.controller.details)
+        )
     }
 }
