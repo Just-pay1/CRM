@@ -1,24 +1,5 @@
 import Joi from "joi";
 
-// export const userCreate = Joi.object(
-//     {
-//         // personal data 
-//         first_name: Joi.string().min(3).required(),
-//         middle_name: Joi.string().min(3).required(),
-//         last_name: Joi.string().min(3).required(),
-//         dob: Joi.date().less('1-1-2010').required(),
-//         email: Joi.string().email().required(),
-//         mobile: Joi.number().min(11).required(),
-//         //  JustPay data 
-//         working_hours: Joi.number().required(),
-//         working_days: Joi.array()
-//             .items(Joi.string().valid('sat', 'sun', 'mon', 'tues', 'wed', 'thur', 'fri'))
-//             .required(),
-//         role: Joi.string().valid('superadmin', 'sales', 'operation', 'financial').required(),
-//     }
-// )
-
-// Schema for form data user creation (working_days as hyphen-separated string)
 export const userCreateFormData = Joi.object({
     // personal data 
     first_name: Joi.string().min(3).required(),
@@ -52,7 +33,18 @@ export const userCreateFormData = Joi.object({
             return value;
         }, 'Working Days Validation'),
     role: Joi.string().valid('superadmin', 'sales', 'operation', 'financial').required(),
+    // File validation
+    image: Joi.object({
+        fieldname: Joi.string().valid('image').required(),
+        originalname: Joi.string().required(),
+        encoding: Joi.string().required(),
+        mimetype: Joi.string().valid('image/jpeg', 'image/png', 'image/jpg', 'application/pdf').required(),
+        size: Joi.number().max(3 * 1024 * 1024).required(), // 5MB max
+        buffer: Joi.binary().required()
+    }).required()
 })
+
+
 
 export const adminUser = Joi.object(
     {
