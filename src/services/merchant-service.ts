@@ -2,6 +2,7 @@ import { Merchant } from "../models/merchant-model";
 import { Service } from "../models/services-model";
 import RabbitMQ from "../rabbitMQ/rabbitmq";
 import { MerchantAttributes, MerchantUsers } from "../utilities/common-interfaces";
+import { userCreateFormData } from "../schemas/user-schemas";
 import { makeRequest } from "../utilities/makeInternalRequest";
 import { WebError } from "../utilities/web-errors";
 import { Request, response } from 'express';
@@ -111,7 +112,7 @@ export class MerchantService {
         const offset = (page - 1) * limit;
         const currentUser = req.body.user;
 
-        const { count, rows } = await Merchant.findAndCountAll({ offset, limit });
+        const { count, rows } = await Merchant.findAndCountAll({ offset, limit, order: [['createdAt', 'DESC']] });
         const response = {
             count,
             activePage: page,
@@ -207,7 +208,7 @@ export class MerchantService {
 
     }
 
-    async addUserToMerchant(data: any) {
+    async addUserToMerchant(data: any, image: any) {
         const { merchant_id } = data;
         const rabbitMQ = await RabbitMQ.getInstance();
         const merchant = await Merchant.findOne({
@@ -223,6 +224,8 @@ export class MerchantService {
             throw WebError.BadRequest(`This profile is not on boarding yet, please review.`)
         }
 
+        const img_url = await uploadFile(image, 'user-profile');
+
         const context: MerchantUsers = {
             merchant_id: merchant.dataValues.id,
             first_name: data.first_name,
@@ -232,8 +235,9 @@ export class MerchantService {
             mobile: data.mobile,
             dob: data.dob,
             working_hours: data.working_hours,
-            working_days: data.working_days.join('-'),
+            working_days: data.working_days,
             role: data.role,
+            image_url: img_url.url
         }
 
         const response = await makeRequest({

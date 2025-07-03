@@ -48,8 +48,9 @@ export class MerchantRoutes {
         );
 
         this.router.post('/add-users',
-            validateSchemas(merchantSchemas.add_users),
             verifyToken,
+            this.upload.single('image'),
+            validateFormData(merchantSchemas.addUserToMerchantFormData),
             asyncHandler(this.controller.addUserToMerchant)
         );
 

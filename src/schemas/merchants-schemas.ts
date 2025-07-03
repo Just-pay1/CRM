@@ -1,4 +1,15 @@
 import Joi from "joi";
+import { userCreateFormData } from "./user-schemas";
+import { join } from "path";
+
+const fileSchema = Joi.object({
+    fieldname: Joi.string().valid('license_url', 'commercial_reg_url').required(),
+    originalname: Joi.string().required(),
+    encoding: Joi.string().required(),
+    mimetype: Joi.string().valid('image/jpeg', 'image/png', 'image/jpg', 'application/pdf').required(),
+    size: Joi.number().max(3 * 1024 * 1024).required(), // 5MB max
+    buffer: Joi.any(),
+  });
 
 export const merchantSchemas = {
     create_new: Joi.object().keys({
@@ -66,6 +77,8 @@ export const merchantSchemas = {
     
         fee_from: Joi.string().valid('user', 'merchant').required().default('merchant'),
         service_id: Joi.string().required(),
+        license_url: Joi.array().items(fileSchema).length(1).required(),
+        commercial_reg_url: Joi.array().items(fileSchema).length(1).required(),
       }),
       
     list: Joi.object().keys({
@@ -79,21 +92,8 @@ export const merchantSchemas = {
         id: Joi.string().required(),
     }),
 
-    add_users: Joi.object({
-        merchant_id: Joi.string().required(),
-        first_name: Joi.string().min(3).required(),
-        middle_name: Joi.string().min(3).required(),
-        last_name: Joi.string().min(3).required(),
-        dob: Joi.date().less("1-1-2010").required(),
-        email: Joi.string().email().required(),
-        mobile: Joi.string().length(11).required(),
-        working_hours: Joi.number().required(),
-        working_days: Joi.array()
-            .items(
-                Joi.string().valid("sat", "sun", "mon", "tues", "wed", "thur", "fri")
-            )
-            .required(),
-        role: Joi.string().valid("financial").required(),
+    addUserToMerchantFormData: userCreateFormData.keys({
+        merchant_id: Joi.string().required()
     }),
 
     listUsers: Joi.object({

@@ -37,6 +37,7 @@ export interface MerchantUsers {
     working_hours: string,
     working_days: string,
     role: string,
+    image_url: string,
 }
 
 export interface EmailRequest {
