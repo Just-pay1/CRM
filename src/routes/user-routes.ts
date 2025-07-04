@@ -19,9 +19,9 @@ class UserRoutes {
 
     private initializeUserRoutes() {
         this.router.post('/create', 
-            verifyToken,
             this.upload.single('image'),
             validateFormData(userCreateFormData),
+            verifyToken,
             asyncHandler(this.controller.handleCreateNewUserReq)
         )
 

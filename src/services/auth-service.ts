@@ -32,6 +32,9 @@ class AuthService {
         }
 
         if (user.dataValues.login_attemps === 5) {
+            await user.update({
+                locked: true
+            })
             throw WebError.BadRequest("We've locked your account to keep it safe. but we can email you a new password.")
         }
 

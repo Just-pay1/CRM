@@ -29,6 +29,7 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
         }
 
         req.body.user = decodedToken;
+        // console.log(req.body.user, '===============')
         next();
     } catch (error) {
         next(error);

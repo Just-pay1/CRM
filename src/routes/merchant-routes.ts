@@ -17,9 +17,9 @@ export class MerchantRoutes {
 
     private initializeRoutes() {
         this.router.post(`/create`,
-            verifyToken,
             this.upload.fields([{ name: 'license_url'}, { name: 'commercial_reg_url'}]),
             validateFormData(merchantSchemas.create_new),
+            verifyToken,
             asyncHandler(this.controller.createNewCustomer)
         );
 

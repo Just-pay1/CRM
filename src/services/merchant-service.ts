@@ -40,9 +40,9 @@ export class MerchantService {
             user
         } = body;
 
-        // if (user.role !== 'sales' && user.role !== 'superadmin') {
-        //     throw WebError.Forbidden(`You are not authorized to do this action.`);
-        // }
+        if (user.role !== 'sales') {
+            throw WebError.Forbidden(`You are not authorized to do this action.`);
+        }
 
         const sameMail = await Merchant.findOne({ where: { admin_email } });
         const sameNumber = await Merchant.findOne({ where: { telephone_number } });
