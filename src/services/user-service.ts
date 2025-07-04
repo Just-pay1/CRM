@@ -73,9 +73,11 @@ class UserService {
             user
         } = body
 
-        // if(user.role !== 'superadmin'){
-        //     throw WebError.Forbidden(`You are not authorized to do this action.`)
-        // }
+        // console.log(body)
+
+        if(user.role !== 'superadmin'){
+            throw WebError.Forbidden(`You are not authorized to do this action.`)
+        }
 
         const userWithSameEmail = await User.findOne({ where: { email: email } });
         const userWithSameMobile = await User.findOne({ where: { mobile: mobile } });
