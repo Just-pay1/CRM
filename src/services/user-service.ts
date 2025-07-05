@@ -143,7 +143,8 @@ class UserService {
             opt = {
                 ...opt,
                 offset: offset,
-                limit: limit
+                limit: limit,
+                order: [['createdAt', 'DESC']]
             }
         }
 

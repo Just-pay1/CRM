@@ -5,7 +5,7 @@ import { WebError } from "../utilities/web-errors";
 export class ServicesService {
 
         async listAllServices() {
-            const { count, rows } = await Service.findAndCountAll()
+            const { count, rows } = await Service.findAndCountAll({ order: [['createdAt', 'DESC']] })
             const response = {
                 count,
                 rows
