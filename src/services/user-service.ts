@@ -7,6 +7,7 @@ import { createHash } from '../utilities/hash-password';
 import { EmailRequest } from '../utilities/common-interfaces';
 import RabbitMQ from '../rabbitMQ/rabbitmq';
 import { uploadFile } from '../utilities/upload-files';
+import { where } from 'sequelize';
 class UserService {
 
     async createAdminUser(req: Request){
@@ -136,7 +137,10 @@ class UserService {
         const currentUser = req.body.user
         const exclude = ["password", "activeTokenID", "is_loggedIn", "pincode", "resetToken"];
         let opt: any = {
-            attributes: { exclude  },
+            attributes: { exclude },
+            where: {
+                deleted: false,
+            }
         };
 
         if (page != -1) {
@@ -144,7 +148,10 @@ class UserService {
                 ...opt,
                 offset: offset,
                 limit: limit,
-                order: [['createdAt', 'DESC']]
+                order: [['createdAt', 'DESC']],
+                where: {
+                    deleted: false,
+                }
             }
         }
 
@@ -158,20 +165,50 @@ class UserService {
         return response
     }
 
-    async getUserDetails(req: Request) {
-        const userId = req.query.id;
+    // async getUserDetails(req: Request) {
+    //     const userId = req.query.id;
+    //     const user = await User.findOne({
+    //         where: {
+    //             id: userId,
+    //         },
+    //         attributes: { exclude: ["password", "activeTokenID", "is_loggedIn", "pincode", "resetToken"] },
+    //     });
+    //     if (!user) {
+    //         throw WebError.BadRequest('userId is invalid, please review')
+    //     }
+    //     // console.log(user);
+
+    //     return user;
+    // }
+
+    async deleteUser(id: string, user: any){
+        if(user.role !== 'superadmin'){
+            throw WebError.Forbidden(`You are not authorized to do this action.`)
+        }
+
+        const userToDelete = await User.findOne({ where: { id } });
+        if (!userToDelete) {
+            throw WebError.BadRequest('userId is invalid, please review')
+        }
+
+        await userToDelete.update({
+            deleted: true,
+        });
+        return true;
+    }
+
+    async getUserDetails(id: string) {
         const user = await User.findOne({
             where: {
-                id: userId,
+                id,
+                deleted: false,
             },
             attributes: { exclude: ["password", "activeTokenID", "is_loggedIn", "pincode", "resetToken"] },
         });
         if (!user) {
             throw WebError.BadRequest('userId is invalid, please review')
         }
-        // console.log(user);
-
-        return user;
+        return user.dataValues;
     }
 
 }

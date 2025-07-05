@@ -29,8 +29,14 @@ class UserController {
     }
 
     public handleGetUserDetailsReq = async (req: Request, res: Response, next: NextFunction) => {
-        const response = await this.service.getUserDetails(req)
+        const id = req.query.id
+        const response = await this.service.getUserDetails( id as string)
         responseHandler(res, 200, 'User details fetched successfully!', response)
+    }
+
+    public deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+        const response = await this.service.deleteUser(req.body.id, req.body.user);
+        responseHandler(res, 200, 'User deleted successfully!', response);
     }
 }
 

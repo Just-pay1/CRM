@@ -73,7 +73,8 @@ class AuthService {
             });
             await user.update({
                 login_attemps: 0,
-                activeTokenID: tokenID
+                activeTokenID: tokenID,
+                is_loggedIn: true
             })
             return { token, user }
         }

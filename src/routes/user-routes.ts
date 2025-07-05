@@ -2,7 +2,7 @@ import { Router } from "express";
 import asyncHandler from "../middlewares/asyncWrapper";
 import UserController from "../controllers/user-controller";
 import { validateSchemas, validateFormData } from "../middlewares/validateRequests";
-import { adminUser, setPassword, setPinCode, userCreateFormData } from "../schemas/user-schemas";
+import { adminUser, deleteUser, setPassword, setPinCode, userCreateFormData } from "../schemas/user-schemas";
 import { detailsSchema, listSchema } from "../schemas/shared-schemas";
 import { verifyToken } from "../middlewares/token";
 import multer from "multer";
@@ -40,6 +40,12 @@ class UserRoutes {
             validateSchemas(detailsSchema, 'query'),
             verifyToken,
             asyncHandler(this.controller.handleGetUserDetailsReq)
+        )
+
+        this.router.post('/delete-user', 
+            validateSchemas(deleteUser),
+            verifyToken,
+            asyncHandler(this.controller.deleteUser)
         )
     }
 }

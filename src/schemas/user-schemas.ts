@@ -44,7 +44,9 @@ export const userCreateFormData = Joi.object({
     }).required()
 })
 
-
+export const deleteUser = Joi.object({
+    id: Joi.string().required(),
+})
 
 export const adminUser = Joi.object(
     {
