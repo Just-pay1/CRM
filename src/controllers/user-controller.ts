@@ -38,6 +38,16 @@ class UserController {
         const response = await this.service.deleteUser(req.body.id, req.body.user);
         responseHandler(res, 200, 'User deleted successfully!', response);
     }
+
+    public holdUser = async (req: Request, res: Response, next: NextFunction) => {
+        const response = await this.service.holdUser(req.body.id, req.body.user);
+        responseHandler(res, 200, 'User held successfully!', response);
+    }
+
+    public retrieveUser = async (req: Request, res: Response, next: NextFunction) => {
+        const response = await this.service.retrieveUser(req.body.id, req.body.user);
+        responseHandler(res, 200, 'User retrieved successfully!', response);
+    }
 }
 
 export default UserController;

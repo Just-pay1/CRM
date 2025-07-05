@@ -47,6 +47,18 @@ class UserRoutes {
             verifyToken,
             asyncHandler(this.controller.deleteUser)
         )
+
+        this.router.post('/hold-user', 
+            validateSchemas(detailsSchema),
+            verifyToken,
+            asyncHandler(this.controller.holdUser)
+        )
+
+        this.router.post('/retrieve-user', 
+            validateSchemas(detailsSchema),
+            verifyToken,
+            asyncHandler(this.controller.retrieveUser)
+        )
     }
 }
 

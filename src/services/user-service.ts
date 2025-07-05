@@ -211,6 +211,54 @@ class UserService {
         return user.dataValues;
     }
 
+    async holdUser (id: string, user: any){
+        if(user.role !== 'superadmin'){
+            throw WebError.Forbidden(`You are not authorized to do this action.`)
+        }
+        
+        const userToHold = await User.findOne({ where: { id } });
+        if (!userToHold) {
+            throw WebError.BadRequest('user id is invalid, please review')
+        }
+
+        if(userToHold.dataValues.deleted){
+            throw WebError.BadRequest('This user is already deleted')
+        }
+
+        if(userToHold.dataValues.holded){
+            throw WebError.BadRequest('This user is already holded')
+        }
+
+        await userToHold.update({
+            holded: true,
+        });
+        return true;
+    }
+
+    async retrieveUser (id: string, user: any){
+        if(user.role !== 'superadmin'){
+            throw WebError.Forbidden(`You are not authorized to do this action.`)
+        }
+
+        const userToRetrieve = await User.findOne({ where: { id } });
+        if (!userToRetrieve) {
+            throw WebError.BadRequest('user id is invalid, please review')
+        }
+
+        if(userToRetrieve.dataValues.deleted){
+            throw WebError.BadRequest('This user is already deleted')
+        }
+
+        if(!userToRetrieve.dataValues.holded){
+            throw WebError.BadRequest('This user is not holded')
+        }
+
+        await userToRetrieve.update({
+            holded: false,
+        });
+        return true;
+    }
+
 }
 
 export default UserService;
