@@ -133,24 +133,26 @@ class UserService {
     async getUsersList(req: Request) {
         const page = req.query.page ? +req.query.page : -1;
         const limit = req.query.limit ? +req.query.limit : 10;
+        const searchKey = req.query.searchKey;
         const offset = (page - 1) * limit;
         const currentUser = req.body.user
         const exclude = ["password", "activeTokenID", "is_loggedIn", "pincode", "resetToken"];
         let opt: any = {
             attributes: { exclude },
+            offset: offset,
+            limit: limit,
+            order: [['createdAt', 'DESC']],
             where: {
                 deleted: false,
             }
         };
 
-        if (page != -1) {
+        if (searchKey) {
             opt = {
                 ...opt,
-                offset: offset,
-                limit: limit,
-                order: [['createdAt', 'DESC']],
                 where: {
                     deleted: false,
+                    email: searchKey
                 }
             }
         }
