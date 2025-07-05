@@ -107,7 +107,7 @@ class UserService {
                 working_hours,
                 working_days, // Store as array directly instead of joining
                 role,
-                image_url: img_url.url,
+                img_url: img_url.url,
             }
         )
 
