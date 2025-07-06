@@ -7,7 +7,7 @@ import { createHash } from '../utilities/hash-password';
 import { EmailRequest } from '../utilities/common-interfaces';
 import RabbitMQ from '../rabbitMQ/rabbitmq';
 import { uploadFile } from '../utilities/upload-files';
-import { where } from 'sequelize';
+import { Op, where } from 'sequelize';
 class UserService {
 
     async createAdminUser(req: Request){
@@ -152,7 +152,7 @@ class UserService {
                 ...opt,
                 where: {
                     deleted: false,
-                    email: searchKey
+                    email: { [Op.like]: `%${searchKey}%` }
                 }
             }
         }
@@ -188,6 +188,10 @@ class UserService {
             throw WebError.Forbidden(`You are not authorized to do this action.`)
         }
 
+        if (user.id === id){
+            throw WebError.Forbidden(`You cannot delete yourself.`)
+        }
+
         const userToDelete = await User.findOne({ where: { id } });
         if (!userToDelete) {
             throw WebError.BadRequest('userId is invalid, please review')
@@ -216,6 +220,10 @@ class UserService {
     async holdUser (id: string, user: any){
         if(user.role !== 'superadmin'){
             throw WebError.Forbidden(`You are not authorized to do this action.`)
+        }
+
+        if (user.id === id){
+            throw WebError.Forbidden(`You cannot hold yourself.`)
         }
         
         const userToHold = await User.findOne({ where: { id } });
