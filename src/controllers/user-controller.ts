@@ -48,6 +48,11 @@ class UserController {
         const response = await this.service.retrieveUser(req.body.id, req.body.user);
         responseHandler(res, 200, 'User retrieved successfully!', response);
     }
+
+    public unlockUser = async (req: Request, res: Response, next: NextFunction) => {
+        const response = await this.service.unlockUser(req.body.id, req.body.user);
+        responseHandler(res, 200, 'Mail is sent to the user with his new password', response);
+    }
 }
 
 export default UserController;

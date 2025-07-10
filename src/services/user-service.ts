@@ -10,7 +10,7 @@ import { uploadFile } from '../utilities/upload-files';
 import { Op, where } from 'sequelize';
 class UserService {
 
-    async createAdminUser(req: Request){
+    async createAdminUser(req: Request) {
         const {
             first_name,
             middle_name,
@@ -60,7 +60,7 @@ class UserService {
     }
 
     async createNewUser(body: any, image: any) {
-        
+
         const {
             first_name,
             middle_name,
@@ -76,7 +76,7 @@ class UserService {
 
         // console.log(body)
 
-        if(user.role !== 'superadmin'){
+        if (user.role !== 'superadmin') {
             throw WebError.Forbidden(`You are not authorized to do this action.`)
         }
 
@@ -183,12 +183,12 @@ class UserService {
     //     return user;
     // }
 
-    async deleteUser(id: string, user: any){
-        if(user.role !== 'superadmin'){
+    async deleteUser(id: string, user: any) {
+        if (user.role !== 'superadmin') {
             throw WebError.Forbidden(`You are not authorized to do this action.`)
         }
 
-        if (user.id === id){
+        if (user.id === id) {
             throw WebError.Forbidden(`You cannot delete yourself.`)
         }
 
@@ -217,25 +217,25 @@ class UserService {
         return user.dataValues;
     }
 
-    async holdUser (id: string, user: any){
-        if(user.role !== 'superadmin'){
+    async holdUser(id: string, user: any) {
+        if (user.role !== 'superadmin') {
             throw WebError.Forbidden(`You are not authorized to do this action.`)
         }
 
-        if (user.id === id){
+        if (user.id === id) {
             throw WebError.Forbidden(`You cannot hold yourself.`)
         }
-        
+
         const userToHold = await User.findOne({ where: { id } });
         if (!userToHold) {
             throw WebError.BadRequest('user id is invalid, please review')
         }
 
-        if(userToHold.dataValues.deleted){
+        if (userToHold.dataValues.deleted) {
             throw WebError.BadRequest('This user is already deleted')
         }
 
-        if(userToHold.dataValues.holded){
+        if (userToHold.dataValues.holded) {
             throw WebError.BadRequest('This user is already holded')
         }
 
@@ -245,8 +245,8 @@ class UserService {
         return true;
     }
 
-    async retrieveUser (id: string, user: any){
-        if(user.role !== 'superadmin'){
+    async retrieveUser(id: string, user: any) {
+        if (user.role !== 'superadmin') {
             throw WebError.Forbidden(`You are not authorized to do this action.`)
         }
 
@@ -255,17 +255,68 @@ class UserService {
             throw WebError.BadRequest('user id is invalid, please review')
         }
 
-        if(userToRetrieve.dataValues.deleted){
+        if (userToRetrieve.dataValues.deleted) {
             throw WebError.BadRequest('This user is already deleted')
         }
 
-        if(!userToRetrieve.dataValues.holded){
+        if (!userToRetrieve.dataValues.holded) {
             throw WebError.BadRequest('This user is not holded')
         }
 
         await userToRetrieve.update({
             holded: false,
         });
+        return true;
+    }
+
+    async unlockUser(id: string, user: any) {
+        if (user.role !== 'superadmin') {
+            throw WebError.Forbidden(`You are not authorized to do this action.`)
+        }
+
+        if (user.id === id) {
+            throw WebError.Forbidden(`You cannot unlock yourself.`)
+        }
+
+        const userToUnlock = await User.findOne({ where: { id } });
+        if (!userToUnlock) {
+            throw WebError.BadRequest('user id is invalid, please review')
+        }
+
+        if (userToUnlock.dataValues.deleted) {
+            throw WebError.BadRequest('This user is already deleted')
+        }
+
+        if (!userToUnlock.dataValues.locked) {
+            throw WebError.BadRequest('This user is not locked')
+        }
+
+        const password = generateRandomPassword()
+        let hashedPassword = await createHash(password)
+
+        const mailBody = `
+        Your password is '${password}' .
+        don't forget to set a new password after you get your account back 
+    `
+
+        const mailObj: EmailRequest = {
+            to: userToUnlock.dataValues.email,
+            subject: 'User Password',
+            content: mailBody
+        }
+        
+        await userToUnlock.update({
+            locked: false,
+            password: hashedPassword,
+            is_first_time: true,
+            login_attemps: 0
+        });
+
+        const rabbitMQ = await RabbitMQ.getInstance();
+        rabbitMQ.sendMail(mailObj);
+
+
+
         return true;
     }
 
