@@ -31,22 +31,30 @@ class AuthService {
             throw WebError.NotFound('Your account is Locked, Please contact your admin')
         }
 
-        if (user.dataValues.login_attemps === 5) {
-            await user.update({
-                locked: true
-            })
-            throw WebError.BadRequest("We've locked your account to keep it safe. but we can email you a new password.")
-        }
+        // if (user.dataValues.login_attemps === 5) {
+        //     await user.update({
+        //         locked: true
+        //     })
+        //     throw WebError.BadRequest("We've locked your account to keep it safe. but we can email you a new password.")
+        // }
 
         const passwordIsMatching = await verifyHash(password, user.dataValues.password);
 
         if (!passwordIsMatching) {
             user.dataValues.login_attemps += 1;
             await user.save();
+
             if (user.dataValues.login_attemps < 4) {
                 throw WebError.BadRequest(`Password not matched, please review.`)
-            } else {
+            }
+
+            if (user.dataValues.login_attemps === 4) {
                 throw WebError.BadRequest(`You entered the wrong password 4 times, You have 1 attempt before your account is locked.`)
+            } else {
+                await user.update({
+                    locked: true
+                })
+                throw WebError.BadRequest("We've locked your account to keep it safe. but we can email you a new password.")
             }
         }
 

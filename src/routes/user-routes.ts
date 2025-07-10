@@ -59,6 +59,12 @@ class UserRoutes {
             verifyToken,
             asyncHandler(this.controller.retrieveUser)
         )
+
+        this.router.post('/unlock-user', 
+            validateSchemas(detailsSchema),
+            verifyToken,
+            asyncHandler(this.controller.unlockUser)
+        )
     }
 }
 
