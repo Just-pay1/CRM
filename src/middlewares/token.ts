@@ -25,7 +25,7 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
         const user = await User.findOne({ where: { activeTokenID: decodedToken.activeTokenID } });
 
         if (!user) {
-            throw WebError.Forbidden('Forbidden, you are not authorized');
+            throw WebError.UnAuthorized('Forbidden, you are not authorized');
         }
 
         req.body.user = decodedToken;
